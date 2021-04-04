@@ -125,7 +125,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     train_losses = []
     valid_losses = []
 
-    best_valid_loss = 99999.9
+    best_valid_loss = math.inf
     stale_epochs = 0
 
     print(f'Training over {args.num_epochs} epochs.')
@@ -171,7 +171,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_xlabel('Epoch number')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(outpath + '/train_losses.pdf')
+    plt.savefig(f'{outpath}/train_losses.pdf')
     plt.close(fig)
 
     with open(outpath + '/train_losses.pkl', 'wb') as f:
@@ -182,10 +182,10 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_xlabel('Epoch number')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(outpath + '/valid_losses.pdf')
+    plt.savefig(f'{outpath}/valid_losses.pdf')
     plt.close(fig)
 
-    with open(outpath + '/valid_losses.pkl', 'wb') as f:
+    with open(f'{outpath}/valid_losses.pkl', 'wb') as f:
         pickle.dump(train_losses, f)
 
     return train_losses, valid_losses
