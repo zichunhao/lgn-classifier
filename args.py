@@ -35,14 +35,14 @@ def setup_argparse():
                         help='Number levels to use in InputMPNN layer. Default: 1')
     parser.add_argument('--activation', type=str, default='leakyrelu',
                         help='Activation function used in MLP layers. Options: (relu, elu, leakyrelu, sigmoid, logsigmoid). Default: elu.')
-    parser.add_argument('--p4_into_CG', type=bool, default=True,
+    parser.add_argument('--p4_into_CG', action=BoolArg, default=True,
                         help='Feed 4-momenta themselves to the first CG layer, in addition to scalars. Default: True')
-    parser.add_argument('--add-beams', type=bool, default=False,
+    parser.add_argument('--add-beams', action=BoolArg, default=False,
                         help='Whether to two proton beams of the form (m^2,0,0,+-1) to each event. Default: False')
-    parser.add_argument('--full-scalars', type=bool, default=True,
+    parser.add_argument('--full-scalars', action=BoolArg, default=True,
                         help='Wehther to feed the norms of ALL irrep tensors (as opposed to just the Loretnz scalar irreps) \
                         at each level into the output layer. Default: True')
-    parser.add_argument('--mlp', type=bool, default=True,
+    parser.add_argument('--mlp', action=BoolArg, default=True,
                         help='Whether to insert a perceptron acting on invariant scalars inside each CG level. Default: True')
     parser.add_argument('--mlp-depth', type=int, default=3, metavar='N',
                         help='Number of hidden layers in each MLP. Default: 3')
@@ -67,7 +67,6 @@ def setup_argparse():
     args = parser.parse_args()
     return args
 
-"""
 # Take an argparse argument that is either a bool or a str and return a boolean.
 class BoolArg(argparse.Action):
 
@@ -121,4 +120,3 @@ class Range(object):
         self.end = end
     def __eq__(self, other):
         return self.start <= other <= self.end
-"""
