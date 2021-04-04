@@ -67,10 +67,10 @@ def setup_argparse():
     args = parser.parse_args()
     return args
 
+"""
+# Take an argparse argument that is either a bool or a str and return a boolean.
 class BoolArg(argparse.Action):
-    """
-    Take an argparse argument that is either a bool or a str and return a boolean.
-    """
+
     def __init__(self, default=None, nargs=None, *args, **kwargs):
         if nargs is not None:
             raise ValueError("nargs us allowed")
@@ -94,7 +94,7 @@ class BoolArg(argparse.Action):
 
         setattr(namespace, self.dest, argval)
 
-"""
+
 Convert argument to boolean
 
 def _arg_to_bool(arg):
