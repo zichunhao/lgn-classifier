@@ -96,7 +96,7 @@ class BoolArg(argparse.Action):
 
 """
 Convert argument to boolean
-"""
+
 def _arg_to_bool(arg):
 
     if type(arg) is bool:
@@ -121,3 +121,4 @@ class Range(object):
         self.end = end
     def __eq__(self, other):
         return self.start <= other <= self.end
+"""
