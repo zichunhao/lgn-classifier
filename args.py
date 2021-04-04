@@ -48,6 +48,8 @@ def setup_argparse():
                         help='Number of hidden layers in each MLP. Default: 3')
     parser.add_argument('--mlp-width', type=int, default=2, metavar='N',
                         help='Width of hidden layers in each MLP in units of the number of inputs. Default: 2')
+    parser.add_argument('--dtype', type=str, default='float64', metavar='N',
+                        help='The data type the model is initialized to. Default: float64')
 
 
     # training parameters
