@@ -117,6 +117,7 @@ class OutputLinear(nn.Module):
         if num_scalars > 0:
             self.lin = nn.Linear(2 * num_scalars, num_classes, bias=bias)
             self.lin.to(device=device, dtype=dtype)
+        self.softmax = nn.Softmax(dim=1)
         self.zero = torch.tensor(0, dtype=dtype, device=device)
 
     def forward(self, scalars):
@@ -143,6 +144,9 @@ class OutputLinear(nn.Module):
             predict = self.lin(scalars)
         else:
             predict = scalars
+
+        predict = self.softmax(predict)
+
         return predict
 
 
@@ -192,7 +196,8 @@ class OutputPMLP(nn.Module):
         # mlp applied on scalar features
         self.mlp1 = BasicMLP(2*num_scalars, num_scalars * num_mixed, num_hidden=1, activation=activation, device=device, dtype=dtype)
         self.mlp2 = BasicMLP(num_scalars * num_mixed, num_classes, num_hidden=1, activation=activation, device=device, dtype=dtype)
-
+        self.softmax = nn.Softmax(dim=1)
+        
         self.zero = torch.tensor(0, device=device, dtype=dtype)
 
     def forward(self, node_scalars, node_mask):
@@ -225,5 +230,7 @@ class OutputPMLP(nn.Module):
 
         # Prediction on permutation invariant representation of graphs
         predict = self.mlp2(x)
+
+        predict = self.softmax(predict)
 
         return predict
