@@ -64,6 +64,9 @@ def setup_argparse():
     parser.add_argument('--lr-decay-type', type=str, default='cos', metavar='str',
                         help='Type of learning rate decay. Options: (cos | linear | exponential | pow | restart). Default: cos')
 
+    # loggings
+    parser.add_argument('--logging', action=BoolArg, default=False, metavar='str',
+                        help='Whether to print all logging info. Default: False')
     args = parser.parse_args()
     return args
 
