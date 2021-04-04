@@ -112,7 +112,7 @@ def _arg_to_bool(arg):
         else:
             return ValueError('Could not parse a True/False boolean')
     else:
-        raise ValueError('Input must be boolean or string! {}'.format(type(arg)))
+        raise ValueError(f'Input must be boolean or string! {type(arg)}')
 
 # From https://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin
 class Range(object):
