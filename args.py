@@ -1,4 +1,5 @@
 import argparse
+from math import inf
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description='LGN classifier options')
@@ -34,14 +35,14 @@ def setup_argparse():
                         help='Number levels to use in InputMPNN layer. Default: 1')
     parser.add_argument('--activation', type=str, default='leakyrelu',
                         help='Activation function used in MLP layers. Options: (relu, elu, leakyrelu, sigmoid, logsigmoid). Default: elu.')
-    parser.add_argument('--p4_into_CG', type=bool, default=True,
+    parser.add_argument('--p4_into_CG', action=BoolArg, default=True,
                         help='Feed 4-momenta themselves to the first CG layer, in addition to scalars. Default: True')
-    parser.add_argument('--add-beams', type=bool, default=False,
+    parser.add_argument('--add-beams', action=BoolArg, default=False,
                         help='Whether to two proton beams of the form (m^2,0,0,+-1) to each event. Default: False')
-    parser.add_argument('--full-scalars', type=bool, default=True,
+    parser.add_argument('--full-scalars', action=BoolArg, default=True,
                         help='Wehther to feed the norms of ALL irrep tensors (as opposed to just the Loretnz scalar irreps) \
                         at each level into the output layer. Default: True')
-    parser.add_argument('--mlp', type=bool, default=True,
+    parser.add_argument('--mlp', action=BoolArg, default=True,
                         help='Whether to insert a perceptron acting on invariant scalars inside each CG level. Default: True')
     parser.add_argument('--mlp-depth', type=int, default=3, metavar='N',
                         help='Number of hidden layers in each MLP. Default: 3')
@@ -62,3 +63,61 @@ def setup_argparse():
                         help='Timescale over which to decay the learning rate. Default: inf')
     parser.add_argument('--lr-decay-type', type=str, default='cos', metavar='str',
                         help='Type of learning rate decay. Options: (cos | linear | exponential | pow | restart). Default: cos')
+
+    args = parser.parse_args()
+    return args
+
+class BoolArg(argparse.Action):
+    """
+    Take an argparse argument that is either a bool or a str and return a boolean.
+    """
+    def __init__(self, default=None, nargs=None, *args, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs us allowed")
+
+        # Set default
+        if default is None:
+            raise ValueError("Default must be set!")
+
+        default = _arg_to_bool(default)
+
+        super().__init__(*args, default=default, nargs='?', **kwargs)
+
+    def __call__(self, parser, namespace, argstring, option_string):
+
+        if argstring is not None:
+            # If called with an argument, convert to bool
+            argval = _arg_to_bool(argstring)
+        else:
+            # BoolArg will invert default option
+            argval = True
+
+        setattr(namespace, self.dest, argval)
+
+"""
+Convert argument to boolean
+"""
+def _arg_to_bool(arg):
+
+    if type(arg) is bool:
+        return arg
+
+    elif type(arg) is str:
+        # If string, convert to true/false
+        arg = arg.lower()
+        if arg in ['true', 't', '1']:
+            return True
+        elif arg in ['false', 'f', '0']:
+            return False
+        else:
+            return ValueError('Could not parse a True/False boolean')
+    else:
+        raise ValueError('Input must be boolean or string! {}'.format(type(arg)))
+
+# From https://stackoverflow.com/questions/12116685/how-can-i-require-my-python-scripts-argument-to-be-a-float-between-0-0-1-0-usin
+class Range(object):
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+    def __eq__(self, other):
+        return self.start <= other <= self.end
