@@ -12,6 +12,8 @@ import pickle
 import time
 import math
 
+import matplotlib.plt as plt
+
 def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr=None, device=None):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
