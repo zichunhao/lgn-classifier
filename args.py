@@ -94,8 +94,7 @@ class BoolArg(argparse.Action):
         setattr(namespace, self.dest, argval)
 
 
-Convert argument to boolean
-
+# Convert argument to boolean
 def _arg_to_bool(arg):
 
     if type(arg) is bool:
