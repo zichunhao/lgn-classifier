@@ -4,8 +4,14 @@ import matplotlib.pyplot as plt
 from itertools import cycle
 from sklearn.metrics import roc_curve, auc
 from scipy import interp
+import os
+import os.path as osp
 
 def plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train):
+    PATH = f'{outpath}/model_evaluations/confusion_matrices'
+    if not osp.isdir(PATH):
+        os.makedirs(PATH)
+
     fig, ax = plt.subplots()
     sns.heatmap(confusion_matrix, annot=True, ax = ax) # annot=True to annotate cells
     ax.set_title(f'Confusion matrix at epoch {epoch+1}')
@@ -15,12 +21,17 @@ def plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train):
     ax.xaxis.set_ticklabels(args.class_labels)
     ax.yaxis.set_ticklabels(args.class_labels)
     if is_train:
-        plt.savefig(f'{outpath}/confusion_matrix_train_epoch_{epoch+1}.{args.fig_format}')
+        plt.savefig(f'{PATH}/confusion_matrix_train_epoch_{epoch+1}.{args.fig_format}')
     else:
-        plt.savefig(f'{outpath}/confusion_matrix_valid_epoch_{epoch+1}.{args.fig_format}')
+        plt.savefig(f'{PATH}/confusion_matrix_valid_epoch_{epoch+1}.{args.fig_format}')
     plt.close(fig)
 
 def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train):
+
+    PATH = f'{outpath}/model_evaluations/roc_curves'
+    if not osp.isdir(PATH):
+        os.makedirs(PATH)
+
     tpr, fpr, _, roc_auc = find_tpr_fpr_threshold_rocAUC(args, predictions_onehot, targets_onehot)
 
     plt.figure()
@@ -47,9 +58,9 @@ def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_
     plt.title('Receiver operating characteristic to multi-class jet classification')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     if is_train:
-        plt.savefig(f'{outpath}/ROC_train_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
+        plt.savefig(f'{PATH}/ROC_train_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
     else:
-        plt.savefig(f'{outpath}/ROC_valid_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
+        plt.savefig(f'{PATH}/ROC_valid_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
 
     return tpr, fpr, roc_auc
 
