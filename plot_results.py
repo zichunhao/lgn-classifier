@@ -55,7 +55,7 @@ def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic to multi-class jet classification')
+    plt.title(f'Receiver operating characteristic (ROC) to multi-class jet classification at epoch {epoch+1}')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     if is_train:
         plt.savefig(f'{PATH}/ROC_train_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
