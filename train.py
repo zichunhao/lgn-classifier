@@ -7,12 +7,14 @@ import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-import pickle
-
-import time
 import math
-
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import sklearn.metrics
+
+import pickle
+import time
 
 def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr=None, device=None):
     if device is None:
@@ -26,7 +28,8 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
 
     losses_per_epoch = []
     avg_loss_per_epoch = []
-    # fractional_loss = []
+    predictions = []
+    targets = []
     correct_preds = 0
     accuracy = 0
 
@@ -61,43 +64,23 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
 
         losses_per_epoch.append(batch_loss.item())
 
-        # # Compute losses per 10 epochs
-        # if (epoch % 10 == 1):
-        #     fractional_loss.append(sum(losses_per_epoch)/len(losses_per_epoch))
+        # For confusion matrix
+        predictions.append(preds.detach().cpu().numpy())
+        targets.append(batch['jet_types'].detach().cpu().numpy())
 
     avg_loss_per_epoch = sum(losses_per_epoch)/len(losses_per_epoch)
 
-    # if is_train:
-    #     # Saving Plots
-    #     fig, ax = plt.subplots()
-    #     ax.plot([i+1 for i in range(len(fractional_loss))], fractional_loss, label='Training fractional losses')
-    #     ax.set_xlabel(f"Fraction of epoch {epoch+1} completed")
-    #     ax.set_ylabel("Loss")
-    #     ax.legend(loc='best')
-    #     plt.savefig(f"{outpath}/train_fractional_loss_epoch_{epoch+1}.pdf")
-    #     plt.close(fig)
-    #
-    #     # Writing files
-    #     with open(f"{outpath}/train_fractional_loss_epoch_{epoch+1}.pkl", 'wb') as f:
-    #         pickle.dump(fractional_loss, f)
-    #     with open(f"{outpath}/train_accuracy_epoch_{epoch+1}.pkl", 'wb') as f:
-    #         pickle.dump(accuracy, f)
-    #
-    # else:
-    #     # Saving Plots
-    #     fig, ax = plt.subplots()
-    #     ax.plot([i+1 for i in range(len(fractional_loss))], fractional_loss, label='Validation fractional losses')
-    #     ax.set_xlabel(f"Fraction of epoch {epoch+1} completed")
-    #     ax.set_ylabel("Loss")
-    #     ax.legend(loc='best')
-    #     plt.savefig(f"{outpath}/valid_fractional_loss_epoch_{epoch+1}.pdf")
-    #     plt.close(fig)
-    #
-    #     # Writing files
-    #     with open(f"{outpath}/valid_fractional_loss_epoch_{epoch+1}.pkl", 'wb') as f:
-    #         pickle.dump(fractional_loss, f)
-    #     with open(f"{outpath}/valid_accuracy_epoch_{epoch+1}.pkl", 'wb') as f:
-    #         pickle.dump(accuracy, f)
+    predictions = np.concatenate(predictions).argmax(axis=1)
+    targets = np.concatenate(targets).argmax(axis=1)
+
+    confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
+    confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
+
+    plot_confusion_matrix(confusion_matrix, epoch, outpath, format=args.fig_format)
+
+    if is_train:
+        with open(f"{outpath}/valid_accuracy_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(accuracy, f)
 
     return avg_loss_per_epoch, accuracy
 
@@ -163,7 +146,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_xlabel('Epoch number')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/train_losses.pdf')
+    plt.savefig(f'{outpath}/train_losses.{args.fig_format}')
     plt.close(fig)
 
     with open(outpath + '/train_losses.pkl', 'wb') as f:
@@ -174,10 +157,21 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_xlabel('Epoch number')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/valid_losses.pdf')
+    plt.savefig(f'{outpath}/valid_losses.{args.fig_format}')
     plt.close(fig)
 
     with open(f'{outpath}/valid_losses.pkl', 'wb') as f:
         pickle.dump(train_losses, f)
 
-    return train_losses, valid_losses
+
+def plot_confusion_matrix(confusion_matrix, epoch, outpath, format='pdf'):
+    fig, ax = plt.subplots()
+    sns.heatmap(confusion_matrix, annot=True, ax = ax) # annot=True to annotate cells
+    ax.set_title(f'Confusion matrix at epoch {epoch+1}')
+    ax.set_xlabel('Predicted labels')
+    ax.set_ylabel('True labels')
+    ax.invert_yaxis()
+    ax.xaxis.set_ticklabels(['g', 'q', 't', 'w', 'z'])
+    ax.yaxis.set_ticklabels(['g', 'q', 't', 'w', 'z'])
+    plt.savefig(f'{outpath}/confusion_matrix_epoch_{epoch+1}.{format}')
+    plt.close(fig)

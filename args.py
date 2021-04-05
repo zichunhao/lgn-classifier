@@ -7,15 +7,15 @@ def setup_argparse():
     # loading data
     parser.add_argument('--file-path', type=str, default='./hls4ml/hls4ml.pt', metavar='N',
                         help='The path of the data.')
-    parser.add_argument('--num-train', type=int, default=1, metavar='N',
+    parser.add_argument('--num-train', type=int, default=10, metavar='N',
                         help='Number of samples to train on. (default: 528000)')
-    parser.add_argument('--num-test', type=int, default=1, metavar='N',
+    parser.add_argument('--num-test', type=int, default=10, metavar='N',
                         help='Number of samples to test on. (default: -1)')
-    parser.add_argument('--num-val', type=int, default=1, metavar='N',
+    parser.add_argument('--num-val', type=int, default=10, metavar='N',
                         help='Number of samples to validate on. (default: -1)')
 
     # training parameters
-    parser.add_argument('--num-epochs', type=int, default=1, metavar='N',
+    parser.add_argument('--num-epochs', type=int, default=2, metavar='N',
                         help='Number of epochs to train. Default: 50')
     parser.add_argument('--batch-size', '-bs', type=int, default=32, metavar='N',
                         help='The batch size. Default: 32')
@@ -84,10 +84,12 @@ def setup_argparse():
                         help="Output folder, in which loggings, models, and figures are stored.")
     parser.add_argument("--patience", type=int, default=16,
                         help="Patience before early stopping. Default: 16")
-
-    # loggings
-    parser.add_argument('--logging', action=BoolArg, default=False, metavar='str',
+    parser.add_argument('--print-logging', action=BoolArg, default=False, metavar='str',
                         help='Whether to print all logging info. Default: False')
+
+    # results saving options
+    parser.add_argument('--fig-format', type=str, default='pdf', metavar='str',
+                        help='The format of output figures. Default: False')
 
     args = parser.parse_args()
 
