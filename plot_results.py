@@ -25,11 +25,11 @@ def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_
 
     plt.figure()
     plt.plot(fpr["micro"], tpr["micro"],
-             label=f'micro-average ROC curve (area = {roc_auc["micro"]})',
+             label=f'micro-average ROC curve (area = {round(roc_auc["micro"],4)})',
              color='gold', linestyle=':', linewidth=4)
 
     plt.plot(fpr["macro"], tpr["macro"],
-             label=f'macro-average ROC curve (area = {roc_auc["macro"]})',
+             label=f'macro-average ROC curve (area = {round(roc_auc["macro"],4)})',
              color='crimson', linestyle=':', linewidth=4)
 
     # color scheme from https://stackoverflow.com/questions/51694827/matplotlib-nice-plot-who-knows-the-scheme-used
