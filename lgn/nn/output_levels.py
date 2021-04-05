@@ -197,7 +197,7 @@ class OutputPMLP(nn.Module):
         self.mlp1 = BasicMLP(2*num_scalars, num_scalars * num_mixed, num_hidden=1, activation=activation, device=device, dtype=dtype)
         self.mlp2 = BasicMLP(num_scalars * num_mixed, num_classes, num_hidden=1, activation=activation, device=device, dtype=dtype)
         self.softmax = nn.Softmax(dim=1)
-        
+
         self.zero = torch.tensor(0, device=device, dtype=dtype)
 
     def forward(self, node_scalars, node_mask):
