@@ -1,7 +1,7 @@
 import torch
-import torch.nn as nn
-import os
-import os.path as osp
+import args
+from args import setup_argparse
+
 import sys
 sys.path.insert(1, 'data_processing/')
 sys.path.insert(1, 'lgn/')
@@ -9,23 +9,14 @@ import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-import args
-from args import setup_argparse
-
 from data_processing.make_pytorch_data import initialize_data
 from lgn.models.lgn_jet_classifier import LGNJetClassifier
+from lgn.models.autotest import lgn_tests
 from train import train_loop
 from generate_fnames import create_model_folder
+from evaluate import Evaluate
 
 import json
-import pickle
-
-from tqdm import tqdm
-import time
-import matplotlib.pyplot as plt
-import math
-from math import inf
-
 import logging
 
 if __name__ == "__main__":
@@ -45,12 +36,10 @@ if __name__ == "__main__":
         print(f"GPU model: {torch.cuda.get_device_name(0)}")
         torch.cuda.empty_cache()
 
-    if args.dtype == 'float64':
+    if args.dtype == 'float64' or 'double':
         dtype = torch.float64
     elif args.dtype == 'float':
         dtype = torch.float
-    elif args.dtype == 'double':
-        dtype = torch.double
     else:
         raise NotImplementedError(f"Data type {args.dtype} is not implemented. Please choose 'float', 'float64', or 'double'.")
 
@@ -86,3 +75,65 @@ if __name__ == "__main__":
 
         optimizer = torch.optim.Adam(model.parameters(), args.lr_init)
         train_loop(args, model=model, optimizer=optimizer, outpath=outpath, train_loader=train_loader, valid_loader=valid_loader, device=device)
+
+        # Test the last epoch model only
+        if not args.test_over_all_epochs:
+            # Load trained model
+            model_path = f"{outpath}/epoch_{args.num_epochs}_weights.pth"
+            model.load_state_dict(torch.load(model_path, map_location=device))
+
+            # Evaluate trained model (last epoch)
+            print(f"Testing the model for epoch {args.num_epochs}...")
+            Evaluate(args, model, args.num_epochs-1, test_loader, outpath)
+
+            if args.test_equivariance:
+                print(f"Now testing equivariance for epoch {args.num_epoch}...")
+                lgn_tests(model, test_loader, args,  args.num_epoch, cg_dict=model.cg_dict)
+
+        # Test models in all epochs
+        else:
+            for epoch in range(args.num_epochs):
+                # epoch_label = epoch + 1, epoch = epoch_label - 1
+                # Load trained model
+                model_path = f"{outpath}/epoch_{epoch+1}_weights.pth"
+                model.load_state_dict(torch.load(model_path, map_location=device))
+
+                # Evaluate trained model (last epoch)
+                print(f"Testing the model for epoch {epoch+1}...")
+                Evaluate(args, model, epoch, test_loader, outpath)
+
+                if args.test_equivariance:
+                    print(f"Now testing equivariance for epoch {epoch+1}...")
+                    lgn_tests(model, test_loader, args, epoch+1, cg_dict=model.cg_dict)
+
+    if args.load_to_test:
+        assert (args.load_model_path is not None), "args.load_model_path is None. Please specify the path trained model for testing."
+
+        if not args.test_over_all_epochs:
+            # Load trained model
+            # outpath: ./folder_of_restults/folder_of_specific_trained/model
+            outpath = args.outpath + args.load_model_path
+            model_path = f"{outpath}/epoch_{args.num_epochs}_weights.pth"
+            model.load_state_dict(torch.load(model_path, map_location=device))
+            # Evaluate trained model (last epoch)
+            print(f"Testing the model for epoch {args.num_epochs}...")
+            Evaluate(args, model, args.num_epochs-1, test_loader, outpath)
+
+            if args.test_equivariance:
+                print(f"Now testing equivariance for epoch {args.num_epoch}...")
+                lgn_tests(model, test_loader, args,  args.num_epoch, cg_dict=model.cg_dict)
+        # Test models in all epochs
+        else:
+            for epoch in range(args.num_epochs):
+                # epoch_label = epoch + 1, epoch = epoch_label - 1
+                # Load trained model
+                model_path = f"{outpath}/epoch_{epoch+1}_weights.pth"
+                model.load_state_dict(torch.load(model_path, map_location=device))
+
+                # Evaluate trained model (last epoch)
+                print(f"Testing the model for epoch {epoch+1}...")
+                Evaluate(args, model, epoch, test_loader, outpath)
+
+                if args.test_equivariance:
+                    print(f"Now testing equivariance for epoch {epoch+1}...")
+                    lgn_tests(model, test_loader, args, epoch+1, cg_dict=model.cg_dict)

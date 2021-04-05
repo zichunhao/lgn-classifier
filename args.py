@@ -15,7 +15,7 @@ def setup_argparse():
                         help='Number of samples to validate on. (default: -1)')
 
     # training parameters
-    parser.add_argument('--num-epochs', type=int, default=32, metavar='N',
+    parser.add_argument('--num-epochs', type=int, default=1, metavar='N',
                         help='Number of epochs to train. Default: 50')
     parser.add_argument('--batch-size', '-bs', type=int, default=32, metavar='N',
                         help='The batch size. Default: 32')
@@ -54,8 +54,7 @@ def setup_argparse():
     parser.add_argument('--add-beams', action=BoolArg, default=False,
                         help='Whether to two proton beams of the form (m^2,0,0,+-1) to each event. Default: False')
     parser.add_argument('--full-scalars', action=BoolArg, default=True,
-                        help='Wehther to feed the norms of ALL irrep tensors (as opposed to just the Loretnz scalar irreps) \
-                        at each level into the output layer. Default: True')
+                        help='Wehther to feed the norms of ALL irrep tensors (as opposed to just the Loretnz scalar irreps) at each level into the output layer. Default: True')
     parser.add_argument('--mlp', action=BoolArg, default=True,
                         help='Whether to insert a perceptron acting on invariant scalars inside each CG level. Default: True')
     parser.add_argument('--mlp-depth', type=int, default=3, metavar='N',
@@ -66,24 +65,32 @@ def setup_argparse():
                         help='The data type the model is initialized to. Default: float64')
 
 
-    # model options
+    # trainin options
     parser.add_argument("--train", action=BoolArg, default=True,
-                        help="Whether to train the model.")
+                        help="Whether to train the model. Default: True")
+    parser.add_argument("--test-over-all-epochs", action=BoolArg, default=False,
+                        help="Whether to test the trainined model in all epochs. If False, only the last epoch model will be tested. Default: False")
+    parser.add_argument("--test-equivariance", action=BoolArg, default=True,
+                        help="Whether to test the equivariance of the trainined model. Default: True")
     parser.add_argument("--load-to-train", action=BoolArg, default=False,
                         help="Whether to load the trained model to continue training.")
+    parser.add_argument("--load-to-test", action=BoolArg, default=False,
+                        help="Whether to load the trained model for testing.")
     parser.add_argument("--load-model-path", type=str, default=None,
                         help="The path of the model to load.")
     parser.add_argument("--load-epoch", type=int, default=1,
                         help="The epoch number to load.")
     parser.add_argument("--outpath", type=str, default = 'trained_models',
                         help="Output folder, in which loggings, models, and figures are stored.")
-    parser.add_argument("--patience", type=int, default=15,
-                        help="Patience before early stopping. Default: 15")
+    parser.add_argument("--patience", type=int, default=16,
+                        help="Patience before early stopping. Default: 16")
 
     # loggings
     parser.add_argument('--logging', action=BoolArg, default=False, metavar='str',
                         help='Whether to print all logging info. Default: False')
+
     args = parser.parse_args()
+
     return args
 
 # Take an argparse argument that is either a bool or a str and return a boolean.
