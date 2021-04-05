@@ -15,7 +15,7 @@ import sklearn.metrics
 import pickle
 import time
 
-from plot_results import plot_confusion_matrix
+from plot_results import plot_confusion_matrix, plot_roc_curve
 
 def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr=None, device=None):
     if device is None:
@@ -29,10 +29,14 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
 
     losses_per_epoch = []
     avg_loss_per_epoch = []
-    predictions = []
-    targets = []
     correct_preds = 0
     accuracy = 0
+    # For confusion matrices
+    predictions = []
+    targets = []
+    # For ROC curves
+    predictions_onehot = []
+    targets_onehot = []
 
     for i, batch in enumerate(loader):
         t0 = time.time()
@@ -69,20 +73,46 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
         predictions.append(preds.detach().cpu().numpy())
         targets.append(batch['jet_types'].detach().cpu().numpy())
 
+        # For ROC curves
+        predictions_onehot.append(preds.detach().cpu().numpy())
+        targets_onehot.append(Y.detach().cpu().numpy())
+
     avg_loss_per_epoch = sum(losses_per_epoch)/len(losses_per_epoch)
 
+    # Confusion matrices
     predictions = np.concatenate(predictions).argmax(axis=1)
     targets = np.concatenate(targets).argmax(axis=1)
-
     confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
     confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
-
     if is_train:
-        with open(f"{outpath}/valid_accuracy_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/accuracy_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(accuracy, f)
-        plot_confusion_matrix(confusion_matrix, epoch, outpath, is_train=True, format=args.fig_format)
+        plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=True)
     else:
-        plot_confusion_matrix(confusion_matrix, epoch, outpath, is_train=False, format=args.fig_format)
+        with open(f"{outpath}/accuracy_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(accuracy, f)
+        plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=False)
+
+    # ROC curves
+    targets_onehot = np.concatenate(targets_onehot)
+    predictions_onehot = np.concatenate(predictions_onehot)
+    if is_train:
+        tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=True)
+        with open(f"{outpath}/Roc_curves_tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(tpr, f)
+        with open(f"{outpath}/Roc_curves_fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(fpr, f)
+        with open(f"{outpath}/Roc_curves_auc_train_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(auc, f)
+
+    else:
+        tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=False)
+        with open(f"{outpath}/Roc_curves_tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(tpr, f)
+        with open(f"{outpath}/Roc_curves_fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(fpr, f)
+        with open(f"{outpath}/Roc_curves_auc_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+            pickle.dump(auc, f)
 
     return avg_loss_per_epoch, accuracy
 
@@ -145,22 +175,22 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
     fig, ax = plt.subplots()
     ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='train losses')
-    ax.set_xlabel('Epoch number')
+    ax.set_xlabel('Epoch')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/train_losses.{args.fig_format}')
+    plt.savefig(f'{outpath}/losses_valid.{args.fig_format}')
     plt.close(fig)
 
-    with open(outpath + '/train_losses.pkl', 'wb') as f:
+    with open(outpath + '/losses_train.pkl', 'wb') as f:
         pickle.dump(train_losses, f)
 
     fig, ax = plt.subplots()
     ax.plot([i+1 for i in range(len(valid_losses))], valid_losses, label='train losses')
-    ax.set_xlabel('Epoch number')
+    ax.set_xlabel('Epoch')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/valid_losses.{args.fig_format}')
+    plt.savefig(f'{outpath}/losses_valid.{args.fig_format}')
     plt.close(fig)
 
-    with open(f'{outpath}/valid_losses.pkl', 'wb') as f:
+    with open(f'{outpath}/losses_valid.pkl', 'wb') as f:
         pickle.dump(train_losses, f)

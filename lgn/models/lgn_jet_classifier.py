@@ -11,7 +11,6 @@ from lgn.models.lgn_cg import LGNCG
 from lgn.nn import RadialFilters
 from lgn.nn import InputLinear, MixReps
 from lgn.nn import OutputLinear, OutputPMLP, GetScalarsNode
-from lgn.nn import NoLayer
 
 class LGNJetClassifier(CGModule):
 

@@ -52,7 +52,7 @@ if __name__ == "__main__":
                              num_cg_levels=args.num_cg_levels,  num_channels=args.num_channels,
                              weight_init=args.weight_init, level_gain=args.level_gain,
                              num_basis_fn=args.num_basis_fn, output_layer=args.output_layer,
-                             num_mpnn_layers=args.num_mpnn_layers, activation=args.activation,
+                             num_mpnn_layers=args.num_mpnn_layers, num_classes=args.num_classes, activation=args.activation,
                              p4_into_CG=args.p4_into_CG, add_beams=args.add_beams, scale=1.,
                              full_scalars=args.full_scalars, mlp=args.mlp, mlp_depth=args.mlp_depth, mlp_width=args.mlp_width,
                              device=device, dtype=dtype)

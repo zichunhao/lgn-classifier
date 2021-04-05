@@ -7,6 +7,10 @@ def setup_argparse():
     # loading data
     parser.add_argument('--file-path', type=str, default='./hls4ml/hls4ml.pt', metavar='N',
                         help='The path of the data.')
+    parser.add_argument('--num-classes', type=int, default=5, metavar='N',
+                        help='The number of jet types. Default: 5.')
+    parser.add_argument('--class-labels', type=str, default=['g', 'q', 't', 'w', 'z'], metavar='N',
+                        help='The jet types.')
     parser.add_argument('--num-train', type=int, default=10, metavar='N',
                         help='Number of samples to train on. (default: 528000)')
     parser.add_argument('--num-test', type=int, default=10, metavar='N',
@@ -91,7 +95,7 @@ def setup_argparse():
 
     # results saving options
     parser.add_argument('--fig-format', type=str, default='pdf', metavar='str',
-                        help='The format of output figures. Default: False')
+                        help='The format of output figures. Default: pdf')
 
     args = parser.parse_args()
 
