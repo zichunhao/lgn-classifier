@@ -24,9 +24,6 @@ if __name__ == "__main__":
     if args.print_logging:
         logging.basicConfig(level=logging.INFO)
 
-    with open("args_cache.json", "w") as f:
-        json.dump(vars(args), f)
-
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Num of GPUs: {torch.cuda.device_count()}")
 
@@ -70,6 +67,9 @@ if __name__ == "__main__":
     # create new model
     else:
         outpath = create_model_folder(args, model)
+
+    with open(f"{outpath}/args_cache.json", "w") as f:
+        json.dump(vars(args), f)
 
     optimizer = torch.optim.Adam(model.parameters(), args.lr_init)
     train_loop(args, model=model, optimizer=optimizer, outpath=outpath, train_loader=train_loader, valid_loader=valid_loader, device=device)
