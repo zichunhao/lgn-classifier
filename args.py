@@ -11,15 +11,15 @@ def setup_argparse():
                         help='The number of jet types. Default: 5.')
     parser.add_argument('--class-labels', type=str, default=['g', 'q', 't', 'w', 'z'], metavar='N',
                         help='The jet types.')
-    parser.add_argument('--num-train', type=int, default=10, metavar='N',
+    parser.add_argument('--num-train', type=int, default=100, metavar='N',
                         help='Number of samples to train on. (default: 528000)')
-    parser.add_argument('--num-test', type=int, default=10, metavar='N',
-                        help='Number of samples to test on. (default: -1)')
-    parser.add_argument('--num-val', type=int, default=10, metavar='N',
+    parser.add_argument('--num-val', type=int, default=100, metavar='N',
                         help='Number of samples to validate on. (default: -1)')
+    parser.add_argument('--num-test', type=int, default=2, metavar='N',
+                        help='Number of samples to test eqvuivariance on. (default: -1)')
 
     # training parameters
-    parser.add_argument('--num-epochs', type=int, default=2, metavar='N',
+    parser.add_argument('--num-epochs', type=int, default=16, metavar='N',
                         help='Number of epochs to train. Default: 50')
     parser.add_argument('--batch-size', '-bs', type=int, default=32, metavar='N',
                         help='The batch size. Default: 32')
@@ -72,14 +72,14 @@ def setup_argparse():
     # trainin options
     parser.add_argument("--load-to-train", action=BoolArg, default=False,
                         help="Whether to load the trained model to continue training.")
-    parser.add_argument("--test-equivariance", action=BoolArg, default=True,
-                        help="Whether to test the equivariance of the trainined model. Default: True")
-    parser.add_argument("--test-over-all-epochs", action=BoolArg, default=False,
-                        help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
     parser.add_argument("--load-model-path", type=str, default=None,
                         help="The path of the model to load.")
     parser.add_argument("--load-epoch", type=int, default=1,
                         help="The epoch number to load.")
+    parser.add_argument("--test-equivariance", action=BoolArg, default=True,
+                        help="Whether to test the equivariance of the trainined model. Default: True")
+    parser.add_argument("--test-over-all-epochs", action=BoolArg, default=False,
+                        help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
     parser.add_argument("--outpath", type=str, default = 'trained_models',
                         help="Output folder, in which loggings, models, and figures are stored.")
     parser.add_argument("--patience", type=int, default=16,

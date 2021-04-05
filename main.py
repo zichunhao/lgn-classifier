@@ -76,13 +76,13 @@ if __name__ == "__main__":
 
     # Test equivariance of models
     if args.test_equivariance:
-        # Test the equivariance of the last epoch only
+        # Test the equivariance of the model in the last epoch only
         if not args.test_over_all_epochs:
             PATH = f"{outpath}/epoch_{args.num_epochs}_weights.pth"
             model.load_state_dict(torch.load(PATH, map_location=device))
             print(f"Testing equivariance for epoch {args.num_epochs}...")
             lgn_tests(model, test_loader, args, args.num_epochs, cg_dict=model.cg_dict)
-        # Test over the equivariance all epochs
+        # Test the equivariance over all epochs
         else:
             for epoch in range(args.num_epochs):
                 PATH = f"{outpath}/epoch_{epoch+1}_weights.pth"
