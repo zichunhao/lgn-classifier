@@ -13,6 +13,8 @@ import numpy as np
 import sklearn.metrics
 
 import pickle
+import os
+import os.path as osp
 import time
 
 from plot_results import plot_confusion_matrix, plot_roc_curve
@@ -84,12 +86,15 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     targets = np.concatenate(targets).argmax(axis=1)
     confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
     confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
+
+    if not osp.isdir(f"{outpath}/model_evaluations/accuracy"):
+        os.makedirs(f"{outpath}/model_evaluations/accuracy")
     if is_train:
-        with open(f"{outpath}/accuracy_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/model_evaluations/accuracy/accuracy_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(accuracy, f)
         plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=True)
     else:
-        with open(f"{outpath}/accuracy_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/model_evaluations/accuracy/accuracy_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(accuracy, f)
         plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=False)
 
@@ -98,20 +103,24 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     predictions_onehot = np.concatenate(predictions_onehot)
     if is_train:
         tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=True)
-        with open(f"{outpath}/Roc_curves_tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        if not osp.isdir(f"{outpath}/model_evaluations/roc_curves/pkl_files"):
+            os.makedirs(f"{outpath}/model_evaluations/roc_curves/pkl_files")
+        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(tpr, f)
-        with open(f"{outpath}/Roc_curves_fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(fpr, f)
-        with open(f"{outpath}/Roc_curves_auc_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/auc_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(auc, f)
 
     else:
         tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=False)
-        with open(f"{outpath}/Roc_curves_tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        if not osp.isdir(f"{outpath}/model_evaluations/roc_curves/pkl_files"):
+            os.makedirs(f"{outpath}/model_evaluations/roc_curves/pkl_files")
+        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(tpr, f)
-        with open(f"{outpath}/Roc_curves_fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(fpr, f)
-        with open(f"{outpath}/Roc_curves_auc_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/auc_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(auc, f)
 
     return avg_loss_per_epoch, accuracy
