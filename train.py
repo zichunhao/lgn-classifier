@@ -103,24 +103,26 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     predictions_onehot = np.concatenate(predictions_onehot)
     if is_train:
         tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=True)
-        if not osp.isdir(f"{outpath}/model_evaluations/roc_curves/pkl_files"):
-            os.makedirs(f"{outpath}/model_evaluations/roc_curves/pkl_files")
-        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        PATH_roc_pkl = f"{outpath}/model_evaluations/roc_curves/pkl_files"
+        if not osp.isdir(PATH_roc_pkl):
+            os.makedirs(PATH_roc_pkl)
+        with open(f"{PATH_roc_pkl}/tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(tpr, f)
-        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{PATH_roc_pkl}/fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(fpr, f)
-        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/auc_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{PATH_roc_pkl}/auc_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(auc, f)
 
     else:
         tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=False)
-        if not osp.isdir(f"{outpath}/model_evaluations/roc_curves/pkl_files"):
-            os.makedirs(f"{outpath}/model_evaluations/roc_curves/pkl_files")
-        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        PATH_roc_pkl = f"{outpath}/model_evaluations/roc_curves/pkl_files"
+        if not osp.isdir(PATH_roc_pkl):
+            os.makedirs(PATH_roc_pkl)
+        with open(f"{PATH_roc_pkl}/tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(tpr, f)
-        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{PATH_roc_pkl}/fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(fpr, f)
-        with open(f"{outpath}/model_evaluations/roc_curves/pkl_files/auc_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        with open(f"{PATH_roc_pkl}/auc_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(auc, f)
 
     return avg_loss_per_epoch, accuracy
@@ -186,19 +188,28 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/losses_valid.{args.fig_format}')
+    plt.savefig(f'{outpath}/model_evaluations/losses_train.{args.fig_format}')
     plt.close(fig)
 
-    with open(outpath + '/losses_train.pkl', 'wb') as f:
+    with open(f'{outpath}/model_evaluations/losses_train.pkl', 'wb') as f:
         pickle.dump(train_losses, f)
 
     fig, ax = plt.subplots()
-    ax.plot([i+1 for i in range(len(valid_losses))], valid_losses, label='train losses')
+    ax.plot([i+1 for i in range(len(valid_losses))], valid_losses, label='validation losses')
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Loss')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/losses_valid.{args.fig_format}')
+    plt.savefig(f'{outpath}/model_evaluations/losses_valid.{args.fig_format}')
     plt.close(fig)
 
-    with open(f'{outpath}/losses_valid.pkl', 'wb') as f:
-        pickle.dump(train_losses, f)
+    fig, ax = plt.subplots()
+    ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='train losses')
+    ax.plot([i+1 for i in range(len(valid_losses))], valid_losses, label='validation losses')
+    ax.set_xlabel('Epoch')
+    ax.set_ylabel('Loss')
+    ax.legend(loc='best')
+    plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}')
+    plt.close(fig)
+
+    with open(f'{outpath}/model_evaluations/losses_valid.pkl', 'wb') as f:
+        pickle.dump(valid_losses, f)
