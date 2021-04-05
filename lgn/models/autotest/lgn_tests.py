@@ -32,7 +32,7 @@ def covariance_test(model, data, cg_dict=None):
 
 	device = model.device
 	dtype = model.dtype
-	data['Pmu'] = data['Pmu'].to(device, dtype)
+	data['p4'] = data['p4'].to(device, dtype)
 	data['node_mask'] = data['node_mask'].to(device, torch.uint8)
 	data['edge_mask'] = data['edge_mask'].to(device, torch.uint8)
 	D, R = _gen_rot(angles, model.maxdim, device=device, dtype=dtype, cg_dict=cg_dict)
@@ -42,13 +42,13 @@ def covariance_test(model, data, cg_dict=None):
 
 	# Rotated input data
 	data_rotin = {key: val.clone() if type(val) is torch.Tensor else None for key, val in data.items()}
-	data_rotin['Pmu'] = torch.einsum("...b, ba->...a", data_rotin['Pmu'], R)
+	data_rotin['p4'] = torch.einsum("...b, ba->...a", data_rotin['p4'], R)
 
 	# Run the model on both inputs
 	outputs_rotout, reps_rotout = model(data_rotout, covariance_test=True)
 	outputs_rotin, reps_rotin = model(data_rotin, covariance_test=True)
 
-	data['Pmu']=torch.rand_like(data['Pmu'])
+	data['p4']=torch.rand_like(data['p4'])
 	data['node_mask'] = torch.ones_like(data['node_mask'])
 
 	logging.info('Boost invariance test. The output is a table of [gamma, rel. deviation] tuples:')
@@ -57,7 +57,7 @@ def covariance_test(model, data, cg_dict=None):
 	alpha_range = np.arange(0,10.0,step=1)
 	for alpha in alpha_range:
 		Di, Ri = _gen_rot((0, 0, alpha*1j), model.maxdim, device=device, dtype=dtype, cg_dict=cg_dict)
-		data_rot['Pmu'] = torch.einsum("...b, ba->...a", data['Pmu'], Ri)
+		data_rot['p4'] = torch.einsum("...b, ba->...a", data['p4'], Ri)
 		outputs_rot, _ = model(data_rot, covariance_test=True)
 		invariance_tests.append((outputs_rot))
 	logging.info(list(list(x) for x in zip(map(cosh, alpha_range), [((x-invariance_tests[0]).abs().mean()/invariance_tests[0].abs().mean()).abs().item() for x in invariance_tests])))
@@ -68,7 +68,7 @@ def covariance_test(model, data, cg_dict=None):
 	alpha_range = np.arange(0,10.0,step=1)
 	for alpha in alpha_range:
 		Di, Ri = _gen_rot((0, alpha, 0), model.maxdim, device=device, dtype=dtype, cg_dict=cg_dict)
-		data_rot['Pmu'] = torch.einsum("...b, ba->...a", data['Pmu'], Ri)
+		data_rot['p4'] = torch.einsum("...b, ba->...a", data['p4'], Ri)
 		outputs_rot, _ = model(data_rot, covariance_test=True)
 		invariance_tests.append((outputs_rot))
 	logging.info(list(list(x) for x in zip(alpha_range, [((x-invariance_tests[0]).abs().mean()/invariance_tests[0].abs().mean()).abs().item() for x in invariance_tests])))
@@ -79,8 +79,8 @@ def covariance_test(model, data, cg_dict=None):
 	logging.info("Averages of components of all tensors:\n {}".format(components_mean))
 	logging.info("Medians of components of all tensors:\n {}".format(components_median))
 
-	# pin=data_rotin['Pmu']
-	# pout=data_rotout['Pmu']
+	# pin=data_rotin['p4']
+	# pout=data_rotout['p4']
 	# rin=reps_rotin[1][(1,1)]
 	# rout=reps_rotout[1][(1,1)]
 	# sin=outputs_rotin
@@ -130,7 +130,7 @@ def permutation_test(model, data):
 	assert((mask == apply_perm(mask)).all())
 
 	data_noperm = data
-	data_perm = {key: apply_perm(val) if key in ['Pmu', 'scalars'] else val for key, val in data.items()}
+	data_perm = {key: apply_perm(val) if key in ['p4', 'scalars'] else val for key, val in data.items()}
 
 	outputs_perm = model(data_perm)
 	outputs_noperm = model(data_noperm)
@@ -143,7 +143,7 @@ def permutation_test(model, data):
 def batch_test(model, data):
 	logging.info('Beginning batch invariance test!')
 	data_split = {key: val.unbind(dim=0) if (torch.is_tensor(val) and val.numel() > 1) else val for key, val in data.items()}
-	data_split = [{key: val[idx].unsqueeze(0) if type(val) is tuple else val for key, val in data_split.items()} for idx in range(len(data['is_signal']))]
+	data_split = [{key: val[idx].unsqueeze(0) if type(val) is tuple else val for key, val in data_split.items()} for idx in range(len(data['jet_types']))]
 
 	outputs_split = torch.cat([model(data_sub) for data_sub in data_split])
 	outputs_full = model(data)

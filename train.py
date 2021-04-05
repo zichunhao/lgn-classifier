@@ -172,7 +172,6 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
         print(f"epoch={epoch+1}/{args.num_epochs}, dt={t1-t0}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
 
-
     fig, ax = plt.subplots()
     ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='train losses')
     ax.set_xlabel('Epoch')
