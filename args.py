@@ -66,16 +66,8 @@ def setup_argparse():
 
 
     # trainin options
-    parser.add_argument("--train", action=BoolArg, default=True,
-                        help="Whether to train the model. Default: True")
-    parser.add_argument("--test-over-all-epochs", action=BoolArg, default=False,
-                        help="Whether to test the trainined model in all epochs. If False, only the last epoch model will be tested. Default: False")
-    parser.add_argument("--test-equivariance", action=BoolArg, default=True,
-                        help="Whether to test the equivariance of the trainined model. Default: True")
     parser.add_argument("--load-to-train", action=BoolArg, default=False,
                         help="Whether to load the trained model to continue training.")
-    parser.add_argument("--load-to-test", action=BoolArg, default=False,
-                        help="Whether to load the trained model for testing.")
     parser.add_argument("--load-model-path", type=str, default=None,
                         help="The path of the model to load.")
     parser.add_argument("--load-epoch", type=int, default=1,
@@ -86,6 +78,16 @@ def setup_argparse():
                         help="Patience before early stopping. Default: 16")
     parser.add_argument('--print-logging', action=BoolArg, default=False, metavar='str',
                         help='Whether to print all logging info. Default: False')
+    """
+    parser.add_argument("--train", action=BoolArg, default=True,
+                        help="Whether to train the model. Default: True")
+    parser.add_argument("--test-over-all-epochs", action=BoolArg, default=False,
+                        help="Whether to test the trainined model in all epochs. If False, only the last epoch model will be tested. Default: False")
+    parser.add_argument("--test-equivariance", action=BoolArg, default=True,
+                        help="Whether to test the equivariance of the trainined model. Default: True")
+    parser.add_argument("--load-to-test", action=BoolArg, default=False,
+                        help="Whether to load the trained model for testing.")
+    """
 
     # results saving options
     parser.add_argument('--fig-format', type=str, default='pdf', metavar='str',

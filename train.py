@@ -10,11 +10,12 @@ if not sys.warnoptions:
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import sklearn.metrics
 
 import pickle
 import time
+
+from plot_results import plot_confusion_matrix
 
 def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr=None, device=None):
     if device is None:
@@ -76,11 +77,12 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
     confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
 
-    plot_confusion_matrix(confusion_matrix, epoch, outpath, format=args.fig_format)
-
     if is_train:
         with open(f"{outpath}/valid_accuracy_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(accuracy, f)
+        plot_confusion_matrix(confusion_matrix, epoch, outpath, is_train=True, format=args.fig_format)
+    else:
+        plot_confusion_matrix(confusion_matrix, epoch, outpath, is_train=False, format=args.fig_format)
 
     return avg_loss_per_epoch, accuracy
 
@@ -105,7 +107,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     best_valid_loss = math.inf
     stale_epochs = 0
 
-    print(f'Training over {args.num_epochs} epochs.')
+    print(f'Training over {args.num_epochs} epochs...')
 
     for epoch in range(args.num_epochs):
         t0 = time.time()
@@ -162,16 +164,3 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
     with open(f'{outpath}/valid_losses.pkl', 'wb') as f:
         pickle.dump(train_losses, f)
-
-
-def plot_confusion_matrix(confusion_matrix, epoch, outpath, format='pdf'):
-    fig, ax = plt.subplots()
-    sns.heatmap(confusion_matrix, annot=True, ax = ax) # annot=True to annotate cells
-    ax.set_title(f'Confusion matrix at epoch {epoch+1}')
-    ax.set_xlabel('Predicted labels')
-    ax.set_ylabel('True labels')
-    ax.invert_yaxis()
-    ax.xaxis.set_ticklabels(['g', 'q', 't', 'w', 'z'])
-    ax.yaxis.set_ticklabels(['g', 'q', 't', 'w', 'z'])
-    plt.savefig(f'{outpath}/confusion_matrix_epoch_{epoch+1}.{format}')
-    plt.close(fig)
