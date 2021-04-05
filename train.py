@@ -37,6 +37,7 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     predictions = []
     targets = []
     # For ROC curves
+    softmax = nn.Softmax()
     predictions_onehot = []
     targets_onehot = []
 
@@ -73,10 +74,11 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
 
         # For confusion matrix
         predictions.append(preds.detach().cpu().numpy())
-        targets.append(batch['jet_types'].detach().cpu().numpy())
+        targets.append(Y.detach().cpu().numpy())
 
         # For ROC curves
-        predictions_onehot.append(preds.detach().cpu().numpy())
+        preds_prob = softmax(preds)
+        predictions_onehot.append(preds_prob.detach().cpu().numpy())
         targets_onehot.append(Y.detach().cpu().numpy())
 
     avg_loss_per_epoch = sum(losses_per_epoch)/len(losses_per_epoch)
