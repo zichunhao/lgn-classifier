@@ -13,7 +13,7 @@ def plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train):
         os.makedirs(PATH)
 
     fig, ax = plt.subplots()
-    sns.heatmap(confusion_matrix, annot=True, ax = ax) # annot=True to annotate cells
+    sns.heatmap(confusion_matrix, annot=True, ax=ax, vmin=0, vmax=1)
     ax.set_title(f'Confusion matrix at epoch {epoch+1}')
     ax.set_xlabel('Predicted labels')
     ax.set_ylabel('True labels')
