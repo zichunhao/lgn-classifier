@@ -107,8 +107,7 @@ if __name__ == "__main__":
                 ax.plot(gamma, boost_dev, label='boost')
                 ax.set_xlabel(r"Boost factor $\gamma$")
                 ax.set_ylabel('Relative deviation')
-                ax.set_title('Relative deviations for boost equivariance test')
-                plt.tight_layout()  # Avoid label overlapping
+                ax.set_title('Relative deviations for boost equivariance test', y=1.05)
                 plt.savefig(f'{PATH_equivariance_results}/boost_equivariance_test_epoch_{args.num_epochs}.{args.fig_format}')
                 plt.close(fig)
             # Rotation
@@ -122,8 +121,7 @@ if __name__ == "__main__":
                 ax.plot(angle, rot_dev, label='rotation')
                 ax.set_xlabel(r"Rotation angle")
                 ax.set_ylabel('Relative deviation')
-                ax.set_title('Relative deviations for rotational equivariance test')
-                plt.tight_layout()  # Avoid label overlapping
+                ax.set_title('Relative deviations for rotational equivariance test', y=1.05)
                 plt.savefig(f'{PATH_equivariance_results}/rot_equivariance_test_epoch_{args.num_epochs}.{args.fig_format}')
                 plt.close(fig)
 
@@ -153,8 +151,7 @@ if __name__ == "__main__":
                     ax.plot(gamma, boost_dev, label='boost')
                     ax.set_xlabel(r"Boost factor $\gamma$")
                     ax.set_ylabel('Relative deviation')
-                    ax.set_title(f'Relative deviations for boost equivariance test at epoch {epoch + 1}')
-                    plt.tight_layout()  # Avoid label overlapping
+                    ax.set_title(f'Relative deviations for boost equivariance test at epoch {epoch+1}', y=1.05)
                     plt.savefig(f'{PATH_equivariance_results}/boost_equivariance_test_epoch_{epoch+1}.{args.fig_format}')
                     plt.close(fig)
                 # Rotation
@@ -168,7 +165,6 @@ if __name__ == "__main__":
                     ax.plot(angle, rot_dev, label='rotation')
                     ax.set_xlabel(r"Rotation angle")
                     ax.set_ylabel('Relative deviation')
-                    ax.set_title(f'Relative deviations for rotational equivariance test at epoch {epoch + 1}')
-                    plt.tight_layout()  # Avoid label overlapping
+                    ax.set_title(f'Relative deviations for rotational equivariance test at epoch {epoch + 1}', y=1.05)
                     plt.savefig(f'{PATH_equivariance_results}/rot_equivariance_test_epoch_{epoch+1}.{args.fig_format}')
                     plt.close(fig)
