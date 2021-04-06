@@ -1,10 +1,6 @@
 import torch
 from torch.utils.data import Dataset
 
-import os
-from itertools import islice
-from math import inf
-
 import logging
 
 class JetDataset(Dataset):
@@ -19,8 +15,7 @@ class JetDataset(Dataset):
             self.num_pts = len(data['Nobj'])
         else:
             if num_pts > len(data['Nobj']):
-                logging.warn(f'Desired number of points ({num_pts}) is greater \
-                than the number of data points ({len(data)}) available in the dataset!')
+                logging.warn(f'Desired number of points ({num_pts}) is greater than the number of data points ({len(data)}) available in the dataset!')
                 self.num_pts = len(data['Nobj'])
             else:
                 self.num_pts = num_pts

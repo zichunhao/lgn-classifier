@@ -6,7 +6,7 @@ def initialize_data(path, batch_size, num_train, num_test=-1, num_val=-1):
 
     data = torch.load(path)
 
-    # calculate node masks and edge masks
+    # Calculate node masks and edge masks
     if 'labels' in data:
         node_mask = data['labels']
         node_mask = node_mask.to(torch.uint8)
@@ -17,9 +17,9 @@ def initialize_data(path, batch_size, num_train, num_test=-1, num_val=-1):
     data['node_mask'] = node_mask
     data['edge_mask'] = edge_mask
 
-    jet_data = JetDataset(data, shuffle=True) # the original data is not shuffled yet
+    jet_data = JetDataset(data, shuffle=True) # The original data is not shuffled yet
 
-    if not (num_test < 0 or num_val < 0): # specified num_test and num_val
+    if not (num_test < 0 or num_val < 0): # Specified num_test and num_val
         assert num_train + num_test + num_val <= len(jet_data), f"num_train + num_test + num_val = {num_train + num_test + num_val} \
                                                                 is larger than the data size {len(jet_data)}!"
 
@@ -30,7 +30,8 @@ def initialize_data(path, batch_size, num_train, num_test=-1, num_val=-1):
         test_loader = DataLoader(jet_data, batch_size=batch_size, shuffle=False)
         valid_loader = DataLoader(jet_data, batch_size=batch_size, shuffle=False)
 
-    else: # unspecified num_test and num_val -> devide the rest in half
+    # Unspecified num_test and num_val -> Choose training data and then divide the rest in half into testing and validation datasets
+    else:
         assert num_train <= len(jet_data), f"num_train = {num_train} is larger than the data size {len(jet_data)}!"
 
         # split into training, testing, and valid sets
