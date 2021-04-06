@@ -43,7 +43,7 @@ def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_
              label=f'macro-average ROC curve (area = {round(roc_auc["macro"],4)})',
              color='crimson', linestyle=':', linewidth=4)
 
-    # color scheme from https://stackoverflow.com/questions/51694827/matplotlib-nice-plot-who-knows-the-scheme-used
+    # Color scheme from https://stackoverflow.com/questions/51694827/matplotlib-nice-plot-who-knows-the-scheme-used
     colors = cycle(["#7aa0c4", "#ca82e1", "#df9f53", "#64b9a1","#745ea6"])
 
     for i, color in zip(range(args.num_classes), colors):

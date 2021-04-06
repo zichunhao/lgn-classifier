@@ -2,13 +2,11 @@ import torch
 import numpy as np
 import time
 import numpy.matlib
-from torch.utils.data import DataLoader
 from math import sqrt, pi, cosh
 
 import logging
 
 from lgn.g_lib import rotations as rot
-# from lgn.data import collate_fn
 
 def _gen_rot(angles, maxdim, device=torch.device('cpu'), dtype=torch.float64, cg_dict=None):
 
@@ -25,7 +23,7 @@ def _gen_rot(angles, maxdim, device=torch.device('cpu'), dtype=torch.float64, cg
 	return D, R
 
 def covariance_test(model, data, cg_dict=None):
-	logging.info('Beginning covariance test!')
+	logging.info('Beginning covariance test...')
 	targets_rotout, outputs_rotin = [], []
 
 	angles = (np.matlib.rand(3) + 1j * np.matlib.rand(3)).tolist()[0]
@@ -51,27 +49,31 @@ def covariance_test(model, data, cg_dict=None):
 	data['p4']=torch.rand_like(data['p4'])
 	data['node_mask'] = torch.ones_like(data['node_mask'])
 
-	logging.info('Boost invariance test. The output is a table of [gamma, rel. deviation] tuples:')
+	logging.info('Boost invariance test. The output is a table of [gamma, relative deviation]:')
 	invariance_tests = []
 	data_rot = {key: val.clone() if type(val) is torch.Tensor else None for key, val in data.items()}
-	alpha_range = np.arange(0,10.0,step=1)
+	alpha_range = np.arange(0,10.0,step=0.5)
 	for alpha in alpha_range:
 		Di, Ri = _gen_rot((0, 0, alpha*1j), model.maxdim, device=device, dtype=dtype, cg_dict=cg_dict)
 		data_rot['p4'] = torch.einsum("...b, ba->...a", data['p4'], Ri)
 		outputs_rot, _ = model(data_rot, covariance_test=True)
 		invariance_tests.append((outputs_rot))
-	logging.info(list(list(x) for x in zip(map(cosh, alpha_range), [((x-invariance_tests[0]).abs().mean()/invariance_tests[0].abs().mean()).abs().item() for x in invariance_tests])))
 
-	logging.info('Rotation invariance test. The output is a table of [angle, rel. deviation] tuples:')
+	boost_result = list(list(x) for x in zip(map(cosh, alpha_range), [((x-invariance_tests[0]).abs().mean()/invariance_tests[0].abs().mean()).abs().item() for x in invariance_tests]))
+	logging.info(boost_result)
+
+	logging.info('Rotation invariance test. The output is a table of [angle, rel. deviation]:')
 	invariance_tests = []
 	data_rot = {key: val.clone() if type(val) is torch.Tensor else None for key, val in data.items()}
-	alpha_range = np.arange(0,10.0,step=1)
+	alpha_range = np.arange(0,10.0,step=0.5)
 	for alpha in alpha_range:
 		Di, Ri = _gen_rot((0, alpha, 0), model.maxdim, device=device, dtype=dtype, cg_dict=cg_dict)
 		data_rot['p4'] = torch.einsum("...b, ba->...a", data['p4'], Ri)
 		outputs_rot, _ = model(data_rot, covariance_test=True)
 		invariance_tests.append((outputs_rot))
-	logging.info(list(list(x) for x in zip(alpha_range, [((x-invariance_tests[0]).abs().mean()/invariance_tests[0].abs().mean()).abs().item() for x in invariance_tests])))
+
+	rot_result = list(list(x) for x in zip(alpha_range, [((x-invariance_tests[0]).abs().mean()/invariance_tests[0].abs().mean()).abs().item() for x in invariance_tests]))
+	logging.info(rot_result)
 
 	components_mean = [{key: level_in[key].abs().mean().item() for key in level_in.keys()} for level_in in reps_rotin]
 	components_median = [{key: level_in[key].abs().median().item() for key in level_in.keys()} for level_in in reps_rotin]
@@ -111,9 +113,10 @@ def covariance_test(model, data, cg_dict=None):
 			for key in lvl_norm.keys():
 				logging.warning('(lvl, key) = ({}, {}) -> {:0.5g} (norm) {:0.5g} (mean)'.format(lvl_idx, key, lvl_norm[key], lvl_mean[key]))
 
+	return boost_result, rot_result
 
 def permutation_test(model, data):
-	logging.info('Beginning permutation test!')
+	logging.info('Beginning permutation test...')
 
 	mask = data['node_mask']
 
@@ -139,9 +142,11 @@ def permutation_test(model, data):
 
 	logging.info('Permutation Invariance test error: {}'.format(invariance_test))
 
+	return invariance_test
+
 
 def batch_test(model, data):
-	logging.info('Beginning batch invariance test!')
+	logging.info('Beginning batch invariance test...')
 	data_split = {key: val.unbind(dim=0) if (torch.is_tensor(val) and val.numel() > 1) else val for key, val in data.items()}
 	data_split = [{key: val[idx].unsqueeze(0) if type(val) is tuple else val for key, val in data_split.items()} for idx in range(len(data['jet_types']))]
 
@@ -151,6 +156,8 @@ def batch_test(model, data):
 
 	logging.info('Batch invariance test error: {}'.format(invariance_test))
 
+	return invariance_test
+
 
 def lgn_tests(model, dataloader, args, epoch, tests=['covariance','permutation','batch'], cg_dict=None):
 
@@ -159,14 +166,22 @@ def lgn_tests(model, dataloader, args, epoch, tests=['covariance','permutation',
 	logging.info("Testing network for symmetries:")
 	model.eval()
 
+	lgn_test_results = dict()
+
 	data = next(iter(dataloader))
 	if 'covariance' in tests:
-		covariance_test(model, data, cg_dict=cg_dict)
+		boost_result, rot_result = covariance_test(model, data, cg_dict=cg_dict)
+		lgn_test_results['boost_equivariance'] = boost_result
+		lgn_test_results['rotation_equivariance'] = rot_result
 	if 'permutation' in tests:
-		permutation_test(model, data)
+		permutation_results = permutation_test(model, data)
+		lgn_test_results['permutation_invariance'] = permutation_results
 	if 'batch' in tests:
-		batch_test(model, data)
+		batch_results = batch_test(model, data)
+		lgn_test_results['batch_invariance'] = batch_results
 
 	logging.info('Test complete!')
 	t1 = time.time()
 	print("Time it took testing equivariance of epoch", epoch, "is:", round((t1-t0)/60,2), "min")
+
+	return lgn_test_results

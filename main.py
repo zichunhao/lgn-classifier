@@ -1,7 +1,11 @@
 import torch
+import matplotlib.pyplot as plt
 import args
 from args import setup_argparse
 
+import pickle
+import os
+import os.path as osp
 import sys
 sys.path.insert(1, 'data_processing/')
 sys.path.insert(1, 'lgn/')
@@ -76,15 +80,95 @@ if __name__ == "__main__":
 
     # Test equivariance of models
     if args.test_equivariance:
+        PATH_equivariance_results = f"{outpath}/model_evaluations/equivariance_test"
+        if not osp.isdir(PATH_equivariance_results):
+            os.makedirs(PATH_equivariance_results)
         # Test the equivariance of the model in the last epoch only
         if not args.test_over_all_epochs:
+            # Load model
             PATH = f"{outpath}/epoch_{args.num_epochs}_weights.pth"
             model.load_state_dict(torch.load(PATH, map_location=device))
-            lgn_tests(model, test_loader, args, args.num_epochs, cg_dict=model.cg_dict)
+            lgn_test_results = lgn_tests(model, test_loader, args, args.num_epochs, cg_dict=model.cg_dict)
+
+            # Saving test results
+            with open(f"{PATH_equivariance_results}/equivariance_test_epoch_{args.num_epochs}.pkl", 'wb') as f:
+                pickle.dump(lgn_test_results, f)
+
+            # Plotting test results
+            # Boost
+            if 'boost_equivariance' in lgn_test_results.keys():
+                boost_results = lgn_test_results['boost_equivariance']
+                # Original format: [[gamma1, dev1], [gamma2, dev2], ...]
+                gamma = [boost_results[i][0] for i in range(len(boost_results))]
+                boost_dev = [boost_results[i][1] for i in range(len(boost_results))]
+                # plotting
+                fig, ax = plt.subplots()
+                fig, ax = plt.subplots()
+                ax.plot(gamma, boost_dev, label='boost')
+                ax.set_xlabel(r"Boost factor $\gamma$")
+                ax.set_ylabel('Relative deviation')
+                ax.set_title('Relative deviations for boost equivariance test')
+                plt.tight_layout()  # Avoid label overlapping
+                plt.savefig(f'{PATH_equivariance_results}/boost_equivariance_test_epoch_{args.num_epochs}.{args.fig_format}')
+                plt.close(fig)
+            # Rotation
+            if 'rotation_equivariance' in lgn_test_results.keys():
+                rot_results = lgn_test_results['rotation_equivariance']
+                # Original format: [[angle1, dev1], [angle2, dev2], ...]
+                angle = [rot_results[i][0] for i in range(len(rot_results))]
+                rot_dev = [rot_results[i][1] for i in range(len(rot_results))]
+                # plotting
+                fig, ax = plt.subplots()
+                ax.plot(angle, rot_dev, label='rotation')
+                ax.set_xlabel(r"Rotation angle")
+                ax.set_ylabel('Relative deviation')
+                ax.set_title('Relative deviations for rotational equivariance test')
+                plt.tight_layout()  # Avoid label overlapping
+                plt.savefig(f'{PATH_equivariance_results}/rot_equivariance_test_epoch_{args.num_epochs}.{args.fig_format}')
+                plt.close(fig)
+
         # Test the equivariance over all epochs
         else:
             for epoch in range(args.num_epochs):
+                # Load model
                 PATH = f"{outpath}/epoch_{epoch+1}_weights.pth"
                 model.load_state_dict(torch.load(PATH, map_location=device))
                 print(f"Testing equivariance for epoch {epoch}...")
-                lgn_tests(model, test_loader, args, epoch+1, cg_dict=model.cg_dict)
+                lgn_test_results = lgn_tests(model, test_loader, args, epoch+1, cg_dict=model.cg_dict)
+
+                # Saving test results
+                with open(f"{PATH_equivariance_results}/equivariance_test_epoch_{epoch+1}.pkl", 'wb') as f:
+                    pickle.dump(lgn_test_results, f)
+
+                # Plotting test results
+                # Boost
+                if 'boost_equivariance' in lgn_test_results.keys():
+                    boost_results = lgn_test_results['boost_equivariance']
+                    # Original format: [[gamma1, dev1], [gamma2, dev2], ...]
+                    gamma = [boost_results[i][0] for i in range(len(boost_results))]
+                    boost_dev = [boost_results[i][1] for i in range(len(boost_results))]
+                    # plotting
+                    fig, ax = plt.subplots()
+                    fig, ax = plt.subplots()
+                    ax.plot(gamma, boost_dev, label='boost')
+                    ax.set_xlabel(r"Boost factor $\gamma$")
+                    ax.set_ylabel('Relative deviation')
+                    ax.set_title(f'Relative deviations for boost equivariance test at epoch {epoch + 1}')
+                    plt.tight_layout()  # Avoid label overlapping
+                    plt.savefig(f'{PATH_equivariance_results}/boost_equivariance_test_epoch_{epoch+1}.{args.fig_format}')
+                    plt.close(fig)
+                # Rotation
+                if 'rotation_equivariance' in lgn_test_results.keys():
+                    rot_results = lgn_test_results['rotation_equivariance']
+                    # Original format: [[angle1, dev1], [angle2, dev2], ...]
+                    angle = [rot_results[i][0] for i in range(len(rot_results))]
+                    rot_dev = [rot_results[i][1] for i in range(len(rot_results))]
+                    # plotting
+                    fig, ax = plt.subplots()
+                    ax.plot(angle, rot_dev, label='rotation')
+                    ax.set_xlabel(r"Rotation angle")
+                    ax.set_ylabel('Relative deviation')
+                    ax.set_title(f'Relative deviations for rotational equivariance test at epoch {epoch + 1}')
+                    plt.tight_layout()  # Avoid label overlapping
+                    plt.savefig(f'{PATH_equivariance_results}/rot_equivariance_test_epoch_{epoch+1}.{args.fig_format}')
+                    plt.close(fig)
