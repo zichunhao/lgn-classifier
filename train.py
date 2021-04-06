@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.nn.functional import softmax
 import sys
 sys.path.insert(1, 'data_processing/')
 sys.path.insert(1, 'lgn/')
@@ -37,7 +38,6 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     predictions = []
     targets = []
     # For ROC curves
-    softmax = nn.Softmax()
     predictions_onehot = []
     targets_onehot = []
 
@@ -77,7 +77,7 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
         targets.append(Y.detach().cpu().numpy())
 
         # For ROC curves
-        preds_prob = softmax(preds)  # Normalize the total probability for a jet
+        preds_prob = softmax(preds, dim=1)  # Normalize the total probability for a jet
         predictions_onehot.append(preds_prob.detach().cpu().numpy())
         targets_onehot.append(Y.detach().cpu().numpy())
 
