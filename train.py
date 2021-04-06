@@ -51,8 +51,8 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
         preds = model(X)
 
         # Backward propagation
-        loss = nn.MSELoss()
-        batch_loss = loss(preds, Y.double())
+        loss = nn.CrossEntropyLoss()
+        batch_loss = loss(preds, Y.long().argmax(axis=1))
 
         if is_train:
             optimizer.zero_grad()
@@ -77,7 +77,7 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
         targets.append(Y.detach().cpu().numpy())
 
         # For ROC curves
-        preds_prob = softmax(preds)
+        preds_prob = softmax(preds)  # Normalize the total probability for a jet
         predictions_onehot.append(preds_prob.detach().cpu().numpy())
         targets_onehot.append(Y.detach().cpu().numpy())
 
