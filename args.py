@@ -11,20 +11,20 @@ def setup_argparse():
                         help='The number of jet types. Default: 5.')
     parser.add_argument('--class-labels', type=str, default=['g', 'q', 't', 'w', 'z'], metavar='N',
                         help='The jet types.')
-    parser.add_argument('--num-train', type=int, default=2, metavar='N',
+    parser.add_argument('--num-train', type=int, default=528000, metavar='N',
                         help='Number of samples to train on. (default: 528000)')
-    parser.add_argument('--num-val', type=int, default=2, metavar='N',
+    parser.add_argument('--num-val', type=int, default=-1, metavar='N',
                         help='Number of samples to validate on. (default: -1)')
-    parser.add_argument('--num-test', type=int, default=10, metavar='N',
+    parser.add_argument('--num-test', type=int, default=-1, metavar='N',
                         help='Number of samples to test eqvuivariance on. (default: -1)')
 
     # training parameters
-    parser.add_argument('--num-epochs', type=int, default=2, metavar='N',
-                        help='Number of epochs to train. Default: 50')
+    parser.add_argument('--num-epochs', type=int, default=64, metavar='N',
+                        help='Number of epochs to train. Default: 64')
     parser.add_argument('--batch-size', '-bs', type=int, default=32, metavar='N',
                         help='The batch size. Default: 32')
     parser.add_argument('--lr-init', type=float, default=0.001, metavar='N',
-                        help='Initial learning rate. Default: 0.005')
+                        help='Initial learning rate. Default: 0.001')
     parser.add_argument('--lr-final', type=float, default=1e-5, metavar='N',
                         help='Final (held) learning rate. Default: 1e-5')
     parser.add_argument('--lr-decay', type=int, default=inf, metavar='N',
