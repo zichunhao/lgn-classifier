@@ -89,15 +89,9 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
     confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
 
-    if not osp.isdir(f"{outpath}/model_evaluations/accuracy"):
-        os.makedirs(f"{outpath}/model_evaluations/accuracy")
     if is_train:
-        with open(f"{outpath}/model_evaluations/accuracy/accuracy_train_epoch_{epoch+1}.pkl", 'wb') as f:
-            pickle.dump(accuracy, f)
         plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=True)
     else:
-        with open(f"{outpath}/model_evaluations/accuracy/accuracy_valid_epoch_{epoch+1}.pkl", 'wb') as f:
-            pickle.dump(accuracy, f)
         plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=False)
 
     # ROC curves
@@ -146,6 +140,8 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
     train_losses = []
     valid_losses = []
+    train_accs = []
+    valid_accs = []
 
     best_valid_loss = math.inf
     stale_epochs = 0
@@ -162,11 +158,13 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
         model.train()
         train_loss, train_acc = train(args, model, train_loader, epoch, outpath, is_train=True, optimizer=optimizer, lr=args.lr_init, device=device)
         train_losses.append(train_loss)
+        train_accs.append(train_acc)
 
         # Test generalization
         model.eval()
         valid_loss, valid_acc = test(args, model, valid_loader, epoch, outpath, device=device)
         valid_losses.append(valid_loss)
+        valid_accs.append(valid_acc)
 
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss
@@ -185,33 +183,34 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
         print(f"epoch={epoch+1}/{args.num_epochs}, dt={t1-t0}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
 
-    fig, ax = plt.subplots()
-    ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='train losses')
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel('Loss')
-    ax.legend(loc='best')
-    plt.savefig(f'{outpath}/model_evaluations/losses_train.{args.fig_format}')
-    plt.close(fig)
-
+    # Recording losses and accuracies
     with open(f'{outpath}/model_evaluations/losses_train.pkl', 'wb') as f:
         pickle.dump(train_losses, f)
+    with open(f'{outpath}/model_evaluations/accs_train.pkl', 'wb') as f:
+        pickle.dump(train_accs, f)
+    with open(f'{outpath}/model_evaluations/losses_valid.pkl', 'wb') as f:
+        pickle.dump(valid_losses, f)
+    with open(f'{outpath}/model_evaluations/accs_valid.pkl', 'wb') as f:
+        pickle.dump(train_accs, f)
 
+    ### Plotting
+    # Losses
     fig, ax = plt.subplots()
+    ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='training losses')
     ax.plot([i+1 for i in range(len(valid_losses))], valid_losses, label='validation losses')
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Loss')
-    ax.legend(loc='best')
-    plt.savefig(f'{outpath}/model_evaluations/losses_valid.{args.fig_format}')
-    plt.close(fig)
-
-    fig, ax = plt.subplots()
-    ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='train losses')
-    ax.plot([i+1 for i in range(len(valid_losses))], valid_losses, label='validation losses')
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel('Loss')
+    ax.set_title('Validation losses')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}')
     plt.close(fig)
 
-    with open(f'{outpath}/model_evaluations/losses_valid.pkl', 'wb') as f:
-        pickle.dump(valid_losses, f)
+    # Accuracies
+    fig, ax = plt.subplots()
+    ax.plot([i+1 for i in range(len(train_accs))], train_accs, label='training accuracies')
+    ax.plot([i+1 for i in range(len(valid_accs))], valid_accs, label='validation accuracy')
+    ax.set_xlabel('Epoch')
+    ax.set_ylabel('Accuracy')
+    ax.legend(loc='best')
+    plt.savefig(f'{outpath}/model_evaluations/accuracies.{args.fig_format}')
+    plt.close(fig)
