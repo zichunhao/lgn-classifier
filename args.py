@@ -5,7 +5,7 @@ def setup_argparse():
     parser = argparse.ArgumentParser(description='LGN classifier options')
 
     # loading data
-    parser.add_argument('--file-path', type=str, default='./hls4ml/hls4ml.pt', metavar='N',
+    parser.add_argument('--file-path', type=str, default='/lgnganvol/hls4ml/hls4ml.pt', metavar='N',
                         help='The path of the data.')
     parser.add_argument('--num-classes', type=int, default=5, metavar='N',
                         help='The number of jet types. Default: 5.')
