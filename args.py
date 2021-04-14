@@ -23,7 +23,7 @@ def setup_argparse():
                         help='Number of epochs to train. Default: 64')
     parser.add_argument('--batch-size', '-bs', type=int, default=16, metavar='N',
                         help='The batch size. Default: 32')
-    parser.add_argument('--lr', type=float, default=0.0001, metavar='N',
+    parser.add_argument('--lr', type=float, default=1e-5, metavar='N',
                         help='Initial learning rate. Default: 0.001')
 
     # neural network constructions
