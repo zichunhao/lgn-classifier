@@ -44,7 +44,7 @@ def setup_argparse():
     parser.add_argument('--weight-init', type=str, default='randn', metavar='str',
                         help='Weight initialization function to use. Default: randn')
     parser.add_argument('--num-basis-fn', type=int, default=10, metavar='N',
-                        help='Number of basis functons(default: 10)')
+                        help='Number of basis functons (default: 10)')
     parser.add_argument('--level-gain', nargs='*', type=float, default=[1.], metavar='N',
                         help='Gain at each level (default: [1.])')
     parser.add_argument('--output-layer', type=str, default='linear', metavar='N',
@@ -82,8 +82,8 @@ def setup_argparse():
                         help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
     parser.add_argument("--outpath", type=str, default = 'trained_models',
                         help="Output folder, in which loggings, models, and figures are stored.")
-    parser.add_argument("--patience", type=int, default=16,
-                        help="Patience before early stopping. Default: 16")
+    parser.add_argument("--patience", type=int, default=10,
+                        help="Patience before early stopping. Default: 10")
     parser.add_argument('--print-logging', action=BoolArg, default=True,
                         help='Whether to print all logging info. Default: False')
     """
