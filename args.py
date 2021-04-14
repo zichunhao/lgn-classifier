@@ -21,16 +21,10 @@ def setup_argparse():
     # training parameters
     parser.add_argument('--num-epochs', type=int, default=64, metavar='N',
                         help='Number of epochs to train. Default: 64')
-    parser.add_argument('--batch-size', '-bs', type=int, default=16, metavar='N',
+    parser.add_argument('--batch-size', '-bs', type=int, default=8, metavar='N',
                         help='The batch size. Default: 32')
-    parser.add_argument('--lr-init', type=float, default=0.001, metavar='N',
+    parser.add_argument('--lr', type=float, default=0.005, metavar='N',
                         help='Initial learning rate. Default: 0.001')
-    parser.add_argument('--lr-final', type=float, default=1e-5, metavar='N',
-                        help='Final (held) learning rate. Default: 1e-5')
-    parser.add_argument('--lr-decay', type=int, default=inf, metavar='N',
-                        help='Timescale over which to decay the learning rate. Default: inf')
-    parser.add_argument('--lr-decay-type', type=str, default='cos', metavar='str',
-                        help='Type of learning rate decay. Options: (cos | linear | exponential | pow | restart). Default: cos')
 
     # neural network constructions
     parser.add_argument('--maxdim', nargs='*', type=int, default=[3], metavar='N',
