@@ -142,6 +142,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     valid_losses = []
     train_accs = []
     valid_accs = []
+    dts = []
 
     best_valid_loss = math.inf
     stale_epochs = 0
@@ -181,6 +182,9 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
         torch.save(model.state_dict(), f"{outpath}/epoch_{epoch+1}_weights.pth")
 
+        dt = t1-t0
+        dts.append(dt)
+
         print(f"epoch={epoch+1}/{args.num_epochs}, dt={t1-t0}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
 
     # Recording losses and accuracies
@@ -191,6 +195,8 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     with open(f'{outpath}/model_evaluations/losses_valid.pkl', 'wb') as f:
         pickle.dump(valid_losses, f)
     with open(f'{outpath}/model_evaluations/accs_valid.pkl', 'wb') as f:
+        pickle.dump(train_accs, f)
+    with open(f'{outpath}/model_evaluations/dts.pkl', 'wb') as f:
         pickle.dump(train_accs, f)
 
     ### Plotting
