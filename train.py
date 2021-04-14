@@ -149,6 +149,22 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
     print(f'Training over {args.num_epochs} epochs...')
 
+    PATH_train_loss_pkl = f"{outpath}/model_evaluations/losses_train_per_epoch"
+    PATH_valid_loss_pkl = f"{outpath}/model_evaluations/losses_valid_per_epoch"
+    PATH_train_acc_pkl = f"{outpath}/model_evaluations/accs_train_per_epoch"
+    PATH_valid_acc_pkl = f"{outpath}/model_evaluations/accs_valid_per_epoch"
+    PATH_dt_pkl = f"{outpath}/model_evaluations/dts_per_epoch"
+    if not osp.isdir(PATH_train_loss_pkl):
+        os.makedirs(PATH_train_loss_pkl)
+    if not osp.isdir(PATH_valid_loss_pkl):
+        os.makedirs(PATH_valid_loss_pkl)
+    if not osp.isdir(PATH_train_acc_pkl):
+        os.makedirs(PATH_train_acc_pkl)
+    if not osp.isdir(PATH_valid_acc_pkl):
+        os.makedirs(PATH_valid_acc_pkl)
+    if not osp.isdir(PATH_dt_pkl):
+        os.makedirs(PATH_dt_pkl)
+
     for epoch in range(args.num_epochs):
         t0 = time.time()
 
@@ -185,7 +201,18 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
         dt = t1-t0
         dts.append(dt)
 
-        print(f"epoch={epoch+1}/{args.num_epochs}, dt={t1-t0}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
+        with open(f'{PATH_train_loss_pkl}/train_loss_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(train_loss, f)
+        with open(f'{PATH_valid_loss_pkl}/valid_loss_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(train_loss, f)
+        with open(f'{PATH_train_acc_pkl}/train_acc_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(train_loss, f)
+        with open(f'{PATH_valid_acc_pkl}/valid_acc_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(valid_loss, f)
+        with open(f'{PATH_dt_pkl}/dt_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(valid_loss, f)
+
+        print(f"epoch={epoch+1}/{args.num_epochs}, dt={dt}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
 
     # Recording losses and accuracies
     with open(f'{outpath}/model_evaluations/losses_train.pkl', 'wb') as f:
