@@ -15,7 +15,7 @@ def create_model_folder(args, model):
     else:
         os.makedirs(outpath)
 
-    model_kwargs = {'model_name': model_fname, 'learning_rate': args.lr_init}
+    model_kwargs = {'model_name': model_fname, 'learning_rate': args.lr}
 
     with open(f'{outpath}/model_kwargs.pkl', 'wb') as f:
         pickle.dump(model_kwargs, f, protocol=pickle.HIGHEST_PROTOCOL)

@@ -75,7 +75,7 @@ if __name__ == "__main__":
     with open(f"{outpath}/args_cache.json", "w") as f:
         json.dump(vars(args), f)
 
-    optimizer = torch.optim.Adam(model.parameters(), args.lr_init)
+    optimizer = torch.optim.Adam(model.parameters(), args.lr)
     train_loop(args, model=model, optimizer=optimizer, outpath=outpath, train_loader=train_loader, valid_loader=valid_loader, device=device)
 
     # Test equivariance of models

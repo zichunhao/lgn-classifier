@@ -156,7 +156,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
             break
 
         model.train()
-        train_loss, train_acc = train(args, model, train_loader, epoch, outpath, is_train=True, optimizer=optimizer, lr=args.lr_init, device=device)
+        train_loss, train_acc = train(args, model, train_loader, epoch, outpath, is_train=True, optimizer=optimizer, lr=args.lr, device=device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
