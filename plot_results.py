@@ -22,8 +22,11 @@ def plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train):
     ax.yaxis.set_ticklabels(args.class_labels)
     if is_train:
         plt.savefig(f'{PATH}/confusion_matrix_train_epoch_{epoch+1}.{args.fig_format}')
+        plt.savefig(f'{PATH}/confusion_matrix_train_epoch_{epoch+1}.png', dpi=600)
     else:
         plt.savefig(f'{PATH}/confusion_matrix_valid_epoch_{epoch+1}.{args.fig_format}')
+        plt.savefig(f'{PATH}/confusion_matrix_valid_epoch_{epoch+1}.png', dpi=600)
+
     plt.close(fig)
 
 def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train):
@@ -59,8 +62,10 @@ def plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     if is_train:
         plt.savefig(f'{PATH}/ROC_train_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
+        plt.savefig(f'{PATH}/ROC_train_epoch_{epoch+1}.png', dpi=600, bbox_inches='tight')
     else:
         plt.savefig(f'{PATH}/ROC_valid_epoch_{epoch+1}.{args.fig_format}', bbox_inches='tight')
+        plt.savefig(f'{PATH}/ROC_valid_epoch_{epoch+1}.png', dpi=600, bbox_inches='tight')
 
     return tpr, fpr, roc_auc
 
