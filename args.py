@@ -27,7 +27,7 @@ def setup_argparse():
                         help='Initial learning rate. Default: 0.001')
 
     # neural network constructions
-    parser.add_argument('--maxdim', nargs='*', type=int, default=[3], metavar='N',
+    parser.add_argument('--maxdim', nargs='*', type=int, default=[4], metavar='N',
                         help='Cutoff (maximum weight) in the Clebsch-Gordon operations. Default: [3]')
     parser.add_argument('--max-zf', nargs='*', type=int, default=[1], metavar='N',
                         help='Maximum weight of spherical harmonics to use. Default: [1]')
@@ -37,7 +37,7 @@ def setup_argparse():
                         help='Number of channels to allow after mixing. Default: [2, 3, 4, 3]')
     parser.add_argument('--weight-init', type=str, default='randn', metavar='str',
                         help='Weight initialization function to use. Default: randn')
-    parser.add_argument('--num-basis-fn', type=int, default=10, metavar='N',
+    parser.add_argument('--num-basis-fn', type=int, default=16, metavar='N',
                         help='Number of basis functons (default: 10)')
     parser.add_argument('--level-gain', nargs='*', type=float, default=[1.], metavar='N',
                         help='Gain at each level (default: [1.])')
