@@ -87,7 +87,6 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     predictions = np.concatenate(predictions).argmax(axis=1)
     targets = np.concatenate(targets).argmax(axis=1)
     confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
-    confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
 
     if is_train:
         plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=True)
