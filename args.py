@@ -70,7 +70,7 @@ def setup_argparse():
                         help="The path of the model to load.")
     parser.add_argument("--load-epoch", type=int, default=1,
                         help="The epoch number to load.")
-    parser.add_argument("--test-equivariance", action=BoolArg, default=True,
+    parser.add_argument("--test-equivariance", action="store_true", default=True,
                         help="Whether to test the equivariance of the trainined model. Default: True")
     parser.add_argument("--test-over-all-epochs", action=BoolArg, default=True,
                         help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
