@@ -127,7 +127,11 @@ if __name__ == "__main__":
 
         # Test the equivariance over all epochs
         else:
-            for epoch in range(args.num_epochs):
+            for ep in range(args.num_epochs):
+                if args.load_to_train:
+                    epoch = ep + args.load_epoch + 1
+                else:
+                    epoch = ep
                 # Load model
                 PATH = f"{outpath}/epoch_{epoch+1}_weights.pth"
                 model.load_state_dict(torch.load(PATH, map_location=device))
