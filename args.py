@@ -64,7 +64,7 @@ def setup_argparse():
 
 
     # trainin options
-    parser.add_argument("--load-to-train", action=BoolArg, default=False,
+    parser.add_argument("--load-to-train", action="store_true", default=False,
                         help="Whether to load the trained model to continue training.")
     parser.add_argument("--load-model-path", type=str, default=None,
                         help="The path of the model to load.")
