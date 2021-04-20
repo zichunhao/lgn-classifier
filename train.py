@@ -164,7 +164,12 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     if not osp.isdir(PATH_dt_pkl):
         os.makedirs(PATH_dt_pkl)
 
-    for epoch in range(args.num_epochs):
+    for ep in range(args.num_epochs):
+        if args.load_to_train:
+            epoch = ep + args.load_epoch + 1
+        else:
+            epoch = ep
+
         t0 = time.time()
 
         if stale_epochs > args.patience:
@@ -235,6 +240,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_title('Validation losses')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}')
+    plt.savefig(f'{outpath}/model_evaluations/losses.png', dpi=600)
     plt.close(fig)
 
     # Accuracies
@@ -245,4 +251,5 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_ylabel('Accuracy')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/accuracies.{args.fig_format}')
+    plt.savefig(f'{outpath}/model_evaluations/accuracies.png', dpi=600)
     plt.close(fig)

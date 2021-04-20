@@ -11,7 +11,7 @@ def create_model_folder(args, model):
 
     if osp.isdir(outpath):
         print(f"Model output {outpath} already exists. Please delete it, rename it, or store it somewhere else so that the existing files are not overwritten.")
-        exit(1)
+        # exit(1)
     else:
         os.makedirs(outpath)
 
