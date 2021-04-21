@@ -63,7 +63,7 @@ def setup_argparse():
                         help='The data type the model is initialized to. Default: float64')
 
 
-    # trainin options
+    # training options
     parser.add_argument("--load-to-train", action=BoolArg, default=False,
                         help="Whether to load the trained model to continue training.")
     parser.add_argument("--load-model-path", type=str, default=None,

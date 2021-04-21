@@ -240,7 +240,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_title('Validation losses')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}')
-    plt.savefig(f'{outpath}/model_evaluations/losses.png', dpi=600)
+    plt.savefig(f'{outpath}/model_evaluations/losses.png', dpi=900)
     plt.close(fig)
 
     # Accuracies
@@ -251,5 +251,5 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_ylabel('Accuracy')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/accuracies.{args.fig_format}')
-    plt.savefig(f'{outpath}/model_evaluations/accuracies.png', dpi=600)
+    plt.savefig(f'{outpath}/model_evaluations/accuracies.png', dpi=900)
     plt.close(fig)
