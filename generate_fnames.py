@@ -24,5 +24,5 @@ def create_model_folder(args, model):
 
 def get_model_fname(args, model):
     model_name = type(model).__name__
-    model_fname = f"{model_name}_numEpochs={args.num_epochs}_numTrain={args.num_train}_lr={args.lr}_maxdim={args.maxdim}_numBasisfn_{args.num_basis_fn}"
+    model_fname = f"{model_name}_lr={args.lr}_maxdim={args.maxdim}_numBasisfn_{args.num_basis_fn}_numEpochs={args.num_epochs}"
     return model_fname
