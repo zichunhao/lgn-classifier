@@ -47,13 +47,13 @@ def setup_argparse():
                         help='Number layers to use in InputMPNN layer. Default: 1')
     parser.add_argument('--activation', type=str, default='leakyrelu',
                         help='Activation function used in MLP layers. Options: (relu, elu, leakyrelu, sigmoid, logsigmoid). Default: elu.')
-    parser.add_argument('--p4_into_CG', action=BoolArg, default=True,
+    parser.add_argument('--p4_into_CG', action="store_true", default=True,
                         help='Feed 4-momenta themselves to the first CG layer, in addition to scalars. Default: True')
-    parser.add_argument('--add-beams', action=BoolArg, default=False,
+    parser.add_argument('--add-beams', action="store_true", default=False,
                         help='Whether to two proton beams of the form (m^2,0,0,+-1) to each event. Default: False')
-    parser.add_argument('--full-scalars', action=BoolArg, default=True,
+    parser.add_argument('--full-scalars', action="store_true", default=True,
                         help='Wehther to feed the norms of ALL irrep tensors (as opposed to just the Loretnz scalar irreps) at each level into the output layer. Default: True')
-    parser.add_argument('--mlp', action=BoolArg, default=True,
+    parser.add_argument('--mlp', action="store_true", default=True,
                         help='Whether to insert a perceptron acting on invariant scalars inside each CG level. Default: True')
     parser.add_argument('--mlp-depth', type=int, default=3, metavar='N',
                         help='Number of hidden layers in each MLP. Default: 3')
@@ -72,18 +72,18 @@ def setup_argparse():
                         help="The epoch number to load.")
     parser.add_argument("--test-equivariance", action="store_true", default=True,
                         help="Whether to test the equivariance of the trainined model. Default: True")
-    parser.add_argument("--test-over-all-epochs", action=BoolArg, default=True,
+    parser.add_argument("--test-over-all-epochs", action="store_true", default=True,
                         help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
     parser.add_argument("--outpath", type=str, default = 'trained_models',
                         help="Output folder, in which loggings, models, and figures are stored.")
     parser.add_argument("--patience", type=int, default=10,
                         help="Patience before early stopping. Default: 10")
-    parser.add_argument('--print-logging', action=BoolArg, default=True,
+    parser.add_argument('--print-logging', action="store_true", default=True,
                         help='Whether to print all logging info. Default: False')
     """
-    parser.add_argument("--train", action=BoolArg, default=True,
+    parser.add_argument("--train", action="store_true", default=True,
                         help="Whether to train the model. Default: True")
-    parser.add_argument("--load-to-test", action=BoolArg, default=False,
+    parser.add_argument("--load-to-test", action="store_true", default=False,
                         help="Whether to load the trained model for testing.")
     """
 
