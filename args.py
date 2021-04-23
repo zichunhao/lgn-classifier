@@ -74,7 +74,7 @@ def setup_argparse():
                         help="Whether to test the equivariance of the trainined model. Default: True")
     parser.add_argument("--test-over-all-epochs", action=BoolArg, default=True,
                         help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
-    parser.add_argument("--outpath", type=str, default = 'trained_models',
+    parser.add_argument("--outpath", type=str, default='trained_models',
                         help="Output folder, in which loggings, models, and figures are stored.")
     parser.add_argument("--patience", type=int, default=10,
                         help="Patience before early stopping. Default: 10")
