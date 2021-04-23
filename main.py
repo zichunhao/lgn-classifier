@@ -66,8 +66,11 @@ if __name__ == "__main__":
     # training
     # load existing model
     if args.load_to_train:
-        outpath = args.outpath + args.load_model_path
-        model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth'))
+        outpath = args.load_model_path
+        if torch.cuda.is_available():
+            model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth'))
+        else:
+            model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth', map_location=torch.device('cpu')))
     # create new model
     else:
         outpath = create_model_folder(args, model)
