@@ -96,7 +96,7 @@ z_tags = torch.cat([z_tag]*z_p4_cartesian.shape[0]).view(-1,5)
 
 tags = torch.cat((g_tags, q_tags, t_tags, w_tags, z_tags),0)
 
-# labels: 1 if real data and 0 if padded data
+# Labels: 1 if real data and 0 if padded data
 g_label = torch.from_numpy(all_g_jets_150p_polarrel_mask_cartesian[:,:,-1])
 q_label = torch.from_numpy(all_q_jets_150p_polarrel_mask_cartesian[:,:,-1])
 t_label = torch.from_numpy(all_t_jets_150p_polarrel_mask_cartesian[:,:,-1])
@@ -105,7 +105,7 @@ z_label = torch.from_numpy(all_z_jets_150p_polarrel_mask_cartesian[:,:,-1])
 
 labels = torch.cat((g_label, q_label, t_label, w_label, z_label),0)
 
-# number of particles per jet
+# Number of particles per jet
 Nobj = labels.sum(dim=-1)
 
 # # masks
@@ -113,7 +113,7 @@ Nobj = labels.sum(dim=-1)
 # node_mask = node_mask.to(torch.uint8)
 # edge_mask = node_mask.unsqueeze(1) * node_mask.unsqueeze(2)
 
-# creating a dictionary
+# Create a dictionary
 data = {}
 
 data['jet_types'] = tags  # g/q/t/w/z
@@ -125,5 +125,5 @@ data['p4'] = p4_cartesian  # particle-level 4-momenta
 # data['scalars'] = scalars  # particle masses in each jet
 
 
-# save model
+# Save data
 torch.save(data, './hls4ml.pt')
