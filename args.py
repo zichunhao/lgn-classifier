@@ -23,17 +23,11 @@ def setup_argparse():
                         help='Number of epochs to train. Default: 64')
     parser.add_argument('--batch-size', '-bs', type=int, default=16, metavar='N',
                         help='The batch size. Default: 32')
-    parser.add_argument('--lr-init', type=float, default=0.001, metavar='N',
+    parser.add_argument('--lr', type=float, default=1e-3, metavar='N',
                         help='Initial learning rate. Default: 0.001')
-    parser.add_argument('--lr-final', type=float, default=1e-5, metavar='N',
-                        help='Final (held) learning rate. Default: 1e-5')
-    parser.add_argument('--lr-decay', type=int, default=inf, metavar='N',
-                        help='Timescale over which to decay the learning rate. Default: inf')
-    parser.add_argument('--lr-decay-type', type=str, default='cos', metavar='str',
-                        help='Type of learning rate decay. Options: (cos | linear | exponential | pow | restart). Default: cos')
 
     # neural network constructions
-    parser.add_argument('--maxdim', nargs='*', type=int, default=[3], metavar='N',
+    parser.add_argument('--maxdim', nargs='*', type=int, default=[4], metavar='N',
                         help='Cutoff (maximum weight) in the Clebsch-Gordon operations. Default: [3]')
     parser.add_argument('--max-zf', nargs='*', type=int, default=[1], metavar='N',
                         help='Maximum weight of spherical harmonics to use. Default: [1]')
@@ -43,8 +37,8 @@ def setup_argparse():
                         help='Number of channels to allow after mixing. Default: [2, 3, 4, 3]')
     parser.add_argument('--weight-init', type=str, default='randn', metavar='str',
                         help='Weight initialization function to use. Default: randn')
-    parser.add_argument('--num-basis-fn', type=int, default=10, metavar='N',
-                        help='Number of basis functons(default: 10)')
+    parser.add_argument('--num-basis-fn', type=int, default=16, metavar='N',
+                        help='Number of basis functons (default: 10)')
     parser.add_argument('--level-gain', nargs='*', type=float, default=[1.], metavar='N',
                         help='Gain at each level (default: [1.])')
     parser.add_argument('--output-layer', type=str, default='linear', metavar='N',
@@ -69,7 +63,7 @@ def setup_argparse():
                         help='The data type the model is initialized to. Default: float64')
 
 
-    # trainin options
+    # training options
     parser.add_argument("--load-to-train", action=BoolArg, default=False,
                         help="Whether to load the trained model to continue training.")
     parser.add_argument("--load-model-path", type=str, default=None,
@@ -80,10 +74,10 @@ def setup_argparse():
                         help="Whether to test the equivariance of the trainined model. Default: True")
     parser.add_argument("--test-over-all-epochs", action=BoolArg, default=True,
                         help="Whether to test the equivariance in all epochs. If False, only the last epoch model will be tested. Default: False")
-    parser.add_argument("--outpath", type=str, default = 'trained_models',
+    parser.add_argument("--outpath", type=str, default='trained_models',
                         help="Output folder, in which loggings, models, and figures are stored.")
-    parser.add_argument("--patience", type=int, default=16,
-                        help="Patience before early stopping. Default: 16")
+    parser.add_argument("--patience", type=int, default=10,
+                        help="Patience before early stopping. Default: 10")
     parser.add_argument('--print-logging', action=BoolArg, default=True,
                         help='Whether to print all logging info. Default: False')
     """

@@ -148,7 +148,7 @@ def cg_product(cg_dict, rep1, rep2, maxdim=inf, aggregate=False, ignore_check=Fa
     maxDim = min(max(maxk1 + maxk2, maxn1 + maxn2) + 1, maxdim)
 
     if (cg_dict.maxdim < maxDim) or (cg_dict.maxdim < max(maxk1, maxn1, maxk2, maxn2)):
-        raise ValueError('CG Dictionary maxdim ({}) not sufficiently large for (maxdim, L1, L2) = ({} {} {})'.format(cg_dict.maxdim, maxdim, max1, max2))
+        raise ValueError('CG Dictionary maxdim ({}) not sufficiently large for (maxdim, L1, L2) = ({} {} {})'.format(cg_dict.maxdim, maxdim, maxk1, maxk2))
     assert(cg_dict.transpose), 'This operation uses transposed CG coefficients!'
 
 

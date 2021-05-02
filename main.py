@@ -66,8 +66,11 @@ if __name__ == "__main__":
     # training
     # load existing model
     if args.load_to_train:
-        outpath = args.outpath + args.load_model_path
-        model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth'))
+        outpath = args.load_model_path
+        if torch.cuda.is_available():
+            model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth'))
+        else:
+            model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth', map_location=torch.device('cpu')))
     # create new model
     else:
         outpath = create_model_folder(args, model)
@@ -75,7 +78,7 @@ if __name__ == "__main__":
     with open(f"{outpath}/args_cache.json", "w") as f:
         json.dump(vars(args), f)
 
-    optimizer = torch.optim.Adam(model.parameters(), args.lr_init)
+    optimizer = torch.optim.Adam(model.parameters(), args.lr)
     train_loop(args, model=model, optimizer=optimizer, outpath=outpath, train_loader=train_loader, valid_loader=valid_loader, device=device)
 
     # Test equivariance of models
@@ -127,7 +130,11 @@ if __name__ == "__main__":
 
         # Test the equivariance over all epochs
         else:
-            for epoch in range(args.num_epochs):
+            for ep in range(args.num_epochs):
+                if args.load_to_train:
+                    epoch = ep + args.load_epoch + 1
+                else:
+                    epoch = ep
                 # Load model
                 PATH = f"{outpath}/epoch_{epoch+1}_weights.pth"
                 model.load_state_dict(torch.load(PATH, map_location=device))

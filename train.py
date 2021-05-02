@@ -87,7 +87,6 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     predictions = np.concatenate(predictions).argmax(axis=1)
     targets = np.concatenate(targets).argmax(axis=1)
     confusion_matrix = sklearn.metrics.confusion_matrix(targets, predictions, normalize='true')
-    confusion_matrix[[0, 1],:] = confusion_matrix[[1, 0],:]  # swap rows for better visualization of confusion matrix
 
     if is_train:
         plot_confusion_matrix(args, confusion_matrix, epoch, outpath, is_train=True)
@@ -142,13 +141,35 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     valid_losses = []
     train_accs = []
     valid_accs = []
+    dts = []
 
     best_valid_loss = math.inf
     stale_epochs = 0
 
     print(f'Training over {args.num_epochs} epochs...')
 
-    for epoch in range(args.num_epochs):
+    PATH_train_loss_pkl = f"{outpath}/model_evaluations/losses_train_per_epoch"
+    PATH_valid_loss_pkl = f"{outpath}/model_evaluations/losses_valid_per_epoch"
+    PATH_train_acc_pkl = f"{outpath}/model_evaluations/accs_train_per_epoch"
+    PATH_valid_acc_pkl = f"{outpath}/model_evaluations/accs_valid_per_epoch"
+    PATH_dt_pkl = f"{outpath}/model_evaluations/dts_per_epoch"
+    if not osp.isdir(PATH_train_loss_pkl):
+        os.makedirs(PATH_train_loss_pkl)
+    if not osp.isdir(PATH_valid_loss_pkl):
+        os.makedirs(PATH_valid_loss_pkl)
+    if not osp.isdir(PATH_train_acc_pkl):
+        os.makedirs(PATH_train_acc_pkl)
+    if not osp.isdir(PATH_valid_acc_pkl):
+        os.makedirs(PATH_valid_acc_pkl)
+    if not osp.isdir(PATH_dt_pkl):
+        os.makedirs(PATH_dt_pkl)
+
+    for ep in range(args.num_epochs):
+        if args.load_to_train:
+            epoch = ep + args.load_epoch + 1
+        else:
+            epoch = ep
+
         t0 = time.time()
 
         if stale_epochs > args.patience:
@@ -156,7 +177,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
             break
 
         model.train()
-        train_loss, train_acc = train(args, model, train_loader, epoch, outpath, is_train=True, optimizer=optimizer, lr=args.lr_init, device=device)
+        train_loss, train_acc = train(args, model, train_loader, epoch, outpath, is_train=True, optimizer=optimizer, lr=args.lr, device=device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
@@ -181,7 +202,21 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
         torch.save(model.state_dict(), f"{outpath}/epoch_{epoch+1}_weights.pth")
 
-        print(f"epoch={epoch+1}/{args.num_epochs}, dt={t1-t0}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
+        dt = t1-t0
+        dts.append(dt)
+
+        with open(f'{PATH_train_loss_pkl}/train_loss_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(train_loss, f)
+        with open(f'{PATH_valid_loss_pkl}/valid_loss_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(train_loss, f)
+        with open(f'{PATH_train_acc_pkl}/train_acc_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(train_loss, f)
+        with open(f'{PATH_valid_acc_pkl}/valid_acc_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(valid_loss, f)
+        with open(f'{PATH_dt_pkl}/dt_epoch_{epoch}.pkl', 'wb') as f:
+            pickle.dump(valid_loss, f)
+
+        print(f"epoch={epoch+1}/{args.num_epochs}, dt={dt}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
 
     # Recording losses and accuracies
     with open(f'{outpath}/model_evaluations/losses_train.pkl', 'wb') as f:
@@ -191,6 +226,8 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     with open(f'{outpath}/model_evaluations/losses_valid.pkl', 'wb') as f:
         pickle.dump(valid_losses, f)
     with open(f'{outpath}/model_evaluations/accs_valid.pkl', 'wb') as f:
+        pickle.dump(train_accs, f)
+    with open(f'{outpath}/model_evaluations/dts.pkl', 'wb') as f:
         pickle.dump(train_accs, f)
 
     ### Plotting
@@ -203,6 +240,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_title('Validation losses')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}')
+    plt.savefig(f'{outpath}/model_evaluations/losses.png', dpi=900)
     plt.close(fig)
 
     # Accuracies
@@ -213,4 +251,5 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_ylabel('Accuracy')
     ax.legend(loc='best')
     plt.savefig(f'{outpath}/model_evaluations/accuracies.{args.fig_format}')
+    plt.savefig(f'{outpath}/model_evaluations/accuracies.png', dpi=900)
     plt.close(fig)

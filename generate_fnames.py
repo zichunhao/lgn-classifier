@@ -11,11 +11,11 @@ def create_model_folder(args, model):
 
     if osp.isdir(outpath):
         print(f"Model output {outpath} already exists. Please delete it, rename it, or store it somewhere else so that the existing files are not overwritten.")
-        exit(1)
+        # exit(1)
     else:
         os.makedirs(outpath)
 
-    model_kwargs = {'model_name': model_fname, 'learning_rate': args.lr_init}
+    model_kwargs = {'model_name': model_fname, 'learning_rate': args.lr}
 
     with open(f'{outpath}/model_kwargs.pkl', 'wb') as f:
         pickle.dump(model_kwargs, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -24,5 +24,5 @@ def create_model_folder(args, model):
 
 def get_model_fname(args, model):
     model_name = type(model).__name__
-    model_fname = f"{model_name}_numEpochs={args.num_epochs}_batchSize={args.batch_size}_numTrain={args.num_train}"
+    model_fname = f"{model_name}_lr={args.lr}_maxdim={args.maxdim}_numBasisfn_{args.num_basis_fn}_numEpochs={args.num_epochs}"
     return model_fname

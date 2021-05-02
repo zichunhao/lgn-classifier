@@ -36,7 +36,7 @@ class GTensor(ABC):
         if not (type(key) is tuple for key in data.keys()):
             raise ValueError('Keys in data must be tuples of ints! {}'.format(data.keys()))
         if not all(torch.is_tensor(part) for part in data.values()):
-            raise ValueError('Values in data must be torch tensors!'.format({key: type(val) for key, val in data.items()}))
+            raise ValueError('Values in data must be torch tensors! {}'.format({key: type(val) for key, val in data.items()}))
         if not all(val.shape[-1] == (key[0]+1)*(key[1]+1) for key, val in data):
             raise ValueError('The last dimension of each torch tensor in data must match the dimension of the irrep labeled by the key, that is, dim((k,n))=(k+1)*(n+1)!')
 
@@ -45,7 +45,8 @@ class GTensor(ABC):
     @abstractmethod
     def zdim(self):
         """
-        Define the tau (channels) dimension for each part.
+        The axis that represents the complex dimension.
+        Real components are at index 0, and imaginary components are at index 1.
         """
         pass
 
@@ -368,7 +369,7 @@ class GTensor(ABC):
 
         return {key: part.min() for key, part in self.items()}
 
-            
+
     def squeeze(self, dim):
         return type(self)({key: part.squeeze(dim) for key, part in self.items()})
 
