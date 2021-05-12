@@ -65,10 +65,10 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
         correct_preds += (preds.argmax(axis=1) == Y.argmax(axis=1)).sum().item()
         accuracy = correct_preds / (args.batch_size*len(loader))
 
-        if is_train:
-            print(f"batch {i+1}/{len(loader)}, train_loss={batch_loss.item()}, train_accuracy={accuracy}, time_duration={t1-t0}", end='\r', flush=True)
-        else:
-            print(f"batch {i+1}/{len(loader)}, valid_loss={batch_loss.item()}, valid_accuracy={accuracy}, time_duration={t1-t0}", end='\r', flush=True)
+        # if is_train:
+        #     print(f"batch {i+1}/{len(loader)}, train_loss={batch_loss.item()}, train_accuracy={accuracy}, time_duration={t1-t0}", end='\r', flush=True)
+        # else:
+        #     print(f"batch {i+1}/{len(loader)}, valid_loss={batch_loss.item()}, valid_accuracy={accuracy}, time_duration={t1-t0}", end='\r', flush=True)
 
         losses_per_epoch.append(batch_loss.item())
 
