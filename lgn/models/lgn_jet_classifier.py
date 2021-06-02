@@ -1,16 +1,14 @@
+from lgn.nn import OutputLinear, OutputPMLP, GetScalarsNode
+from lgn.nn import InputLinear, MixReps
+from lgn.nn import RadialFilters
+from lgn.models.lgn_cg import LGNCG
+from lgn.g_lib import GTau
+from lgn.cg_lib import CGModule, ZonalFunctionsRel, ZonalFunctions, normsq4
 import torch
 import logging
 import sys
 sys.path.insert(1, '../..')
 
-from lgn.cg_lib import CGModule, ZonalFunctionsRel, ZonalFunctions, normsq4
-from lgn.g_lib import GTau
-
-from lgn.models.lgn_cg import LGNCG
-
-from lgn.nn import RadialFilters
-from lgn.nn import InputLinear, MixReps
-from lgn.nn import OutputLinear, OutputPMLP, GetScalarsNode
 
 class LGNJetClassifier(CGModule):
 
@@ -90,6 +88,7 @@ class LGNJetClassifier(CGModule):
         Optional, default: None
         Clebsch-gordan dictionary for taking the CG decomposition.
     """
+
     def __init__(self, maxdim, max_zf, num_cg_levels, num_channels,
                  weight_init, level_gain, num_basis_fn,
                  output_layer, num_mpnn_layers, num_classes=5,
@@ -164,8 +163,8 @@ class LGNJetClassifier(CGModule):
             self.input_func_node = InputLinear(num_scalars_in, num_scalars_out,
                                                device=device, dtype=dtype)
         else:
-            tau_in = GTau({**{(0,0): num_scalars_in}, **{(l,l): 1 for l in range(1, max_zf[0] + 1)}})
-            tau_out = GTau({(l,l): num_scalars_out for l in range(max_zf[0] + 1)})
+            tau_in = GTau({**{(0, 0): num_scalars_in}, **{(l, l): 1 for l in range(1, max_zf[0] + 1)}})
+            tau_out = GTau({(l, l): num_scalars_out for l in range(max_zf[0] + 1)})
             self.input_func_node = MixReps(tau_in, tau_out, device=device, dtype=dtype)
 
         tau_input_node = self.input_func_node.tau
@@ -193,7 +192,6 @@ class LGNJetClassifier(CGModule):
         # logging
         logging.info(f'Model initialized. Number of parameters: {sum(p.nelement() for p in self.parameters())}')
 
-
     """
     Forward pass of the classifier
 
@@ -212,6 +210,7 @@ class LGNJetClassifier(CGModule):
     prediction : torch.Tensor
         The one-hot encoding prediction for jet type.
     """
+
     def forward(self, data, covariance_test=False):
         # Get data
         node_scalars, node_ps, node_mask, edge_mask = self.prepare_input(data, self.num_cg_levels)
@@ -235,7 +234,6 @@ class LGNJetClassifier(CGModule):
         else:
             rad_func_levels = []
             node_reps_in = self.input_func_node(node_scalars, node_mask)
-
 
         # CG layer
         nodes_all = self.lgn_cg(node_reps_in, node_mask, rad_func_levels, zonal_functions)
@@ -269,6 +267,7 @@ class LGNJetClassifier(CGModule):
     edge_mask: torch.Tensor
         Edge mask used for batching data.
     """
+
     def prepare_input(self, data, cg_levels=True):
 
         node_ps = data['p4'].to(device=self.device, dtype=self.dtype) * self.scale
@@ -278,7 +277,7 @@ class LGNJetClassifier(CGModule):
         node_mask = data['node_mask'].to(device=self.device, dtype=torch.uint8)
         edge_mask = data['edge_mask'].to(device=self.device, dtype=torch.uint8)
 
-        scalars = torch.ones_like(node_ps[:,:, 0]).unsqueeze(-1)
+        scalars = torch.ones_like(node_ps[:, :, 0]).unsqueeze(-1)
         scalars = normsq4(node_ps).abs().sqrt().unsqueeze(-1)
 
         if 'scalars' in data.keys():
@@ -288,6 +287,7 @@ class LGNJetClassifier(CGModule):
             scalars = torch.stack(tuple(scalars for _ in range(scalars.shape[-1])), -2).to(device=self.device, dtype=self.dtype)
 
         return scalars, node_ps, node_mask, edge_mask
+
 
 """
 Expand variables in a list
@@ -304,6 +304,8 @@ Return
 var_list : list
     The list of variables. The length will be num_cg_levels.
 """
+
+
 def expand_var_list(var, num_cg_levels):
     if type(var) == list:
         var_list = var + (num_cg_levels - len(var)) * [var[-1]]
