@@ -11,6 +11,7 @@ import warnings
 import torch
 import torch.nn as nn
 from torch.nn.functional import softmax
+import logging
 import sys
 sys.path.insert(1, 'data_processing/')
 sys.path.insert(1, 'lgn/')
@@ -40,7 +41,6 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     targets_onehot = []
 
     for i, batch in enumerate(loader):
-        t0 = time.time()
 
         X = batch
         Y = batch['jet_types'].to(device)
@@ -56,8 +56,6 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
             optimizer.zero_grad()
             batch_loss.backward()
             optimizer.step()
-
-        t1 = time.time()
 
         # Correction prediction
         correct_preds += (preds.argmax(axis=1) == Y.argmax(axis=1)).sum().item()
@@ -214,9 +212,9 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
         with open(f'{PATH_valid_acc_pkl}/valid_acc_epoch_{epoch}.pkl', 'wb') as f:
             pickle.dump(valid_loss, f)
         with open(f'{PATH_dt_pkl}/dt_epoch_{epoch}.pkl', 'wb') as f:
-            pickle.dump(valid_loss, f)
+            pickle.dump(t1-t0, f)
 
-        print(f"epoch={epoch+1}/{args.num_epochs}, dt={dt}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
+        logging.info(f"epoch={epoch+1}/{args.num_epochs}, dt={dt}, train_loss={train_loss}, valid_loss={valid_loss}, train_acc={train_acc}, valid_acc={valid_acc}, stale_epoch(s)={stale_epochs}, eta={eta}m")
 
     # Recording losses and accuracies
     with open(f'{outpath}/model_evaluations/losses_train.pkl', 'wb') as f:
