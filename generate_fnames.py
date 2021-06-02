@@ -1,6 +1,8 @@
 import os
 import os.path as osp
 import pickle
+import logging
+
 
 def create_model_folder(args, model):
     if not osp.isdir(args.outpath):
@@ -10,7 +12,7 @@ def create_model_folder(args, model):
     outpath = osp.join(args.outpath, model_fname)
 
     if osp.isdir(outpath):
-        print(f"Model output {outpath} already exists. Please delete it, rename it, or store it somewhere else so that the existing files are not overwritten.")
+        logging.warn(f"Model output {outpath} already exists. Please delete it, rename it, or store it somewhere else so that the existing files are not overwritten.")
         # exit(1)
     else:
         os.makedirs(outpath)
@@ -22,7 +24,10 @@ def create_model_folder(args, model):
 
     return outpath
 
+
 def get_model_fname(args, model):
     model_name = type(model).__name__
-    model_fname = f"{model_name}_lr={args.lr}_maxdim={args.maxdim}_numBasisfn_{args.num_basis_fn}_numEpochs={args.num_epochs}"
+    model_fname = f"{model_name}_maxdim_{args.maxdim}_numBasisfn_{args.num_basis_fn}"
+    if args.suffix is not None:
+        model_fname += f"_{args.suffix}"
     return model_fname
