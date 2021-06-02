@@ -1,6 +1,13 @@
+import logging
+import json
+from generate_fnames import create_model_folder
+from train import train_loop
+from lgn.models.autotest import lgn_tests
+from lgn.models.lgn_jet_classifier import LGNJetClassifier
+from data_processing.make_pytorch_data import initialize_data
+import warnings
 import torch
 import matplotlib.pyplot as plt
-import args
 from args import setup_argparse
 
 import pickle
@@ -9,18 +16,9 @@ import os.path as osp
 import sys
 sys.path.insert(1, 'data_processing/')
 sys.path.insert(1, 'lgn/')
-import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-from data_processing.make_pytorch_data import initialize_data
-from lgn.models.lgn_jet_classifier import LGNJetClassifier
-from lgn.models.autotest import lgn_tests
-from train import train_loop
-from generate_fnames import create_model_folder
-
-import json
-import logging
 
 if __name__ == "__main__":
     args = setup_argparse()
@@ -50,7 +48,7 @@ if __name__ == "__main__":
 
     # Initialize model
     model = LGNJetClassifier(maxdim=args.maxdim, max_zf=args.max_zf,
-                             num_cg_levels=args.num_cg_levels,  num_channels=args.num_channels,
+                             num_cg_levels=args.num_cg_levels, num_channels=args.num_channels,
                              weight_init=args.weight_init, level_gain=args.level_gain,
                              num_basis_fn=args.num_basis_fn, output_layer=args.output_layer,
                              num_mpnn_layers=args.num_mpnn_layers, num_classes=args.num_classes, activation=args.activation,
@@ -67,6 +65,8 @@ if __name__ == "__main__":
     # load existing model
     if args.load_to_train:
         outpath = args.load_model_path
+        if args.suffix is not None:
+            outpath += f"_{args.suffix}"
         if torch.cuda.is_available():
             model.load_state_dict(torch.load(f'{outpath}/epoch_{args.load_epoch}_weights.pth'))
         else:
