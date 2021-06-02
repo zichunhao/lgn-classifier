@@ -1,24 +1,22 @@
+from plot_results import plot_confusion_matrix, plot_roc_curve
+import time
+import os.path as osp
+import os
+import pickle
+import sklearn.metrics
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+import warnings
 import torch
 import torch.nn as nn
 from torch.nn.functional import softmax
 import sys
 sys.path.insert(1, 'data_processing/')
 sys.path.insert(1, 'lgn/')
-import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-import math
-import matplotlib.pyplot as plt
-import numpy as np
-import sklearn.metrics
-
-import pickle
-import os
-import os.path as osp
-import time
-
-from plot_results import plot_confusion_matrix, plot_roc_curve
 
 def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr=None, device=None):
     if device is None:
@@ -122,6 +120,7 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
 
     return avg_loss_per_epoch, accuracy
 
+
 @torch.no_grad()
 def test(args, model, test_loader, epoch, outpath, device=None):
     if device is None:
@@ -129,6 +128,7 @@ def test(args, model, test_loader, epoch, outpath, device=None):
     with torch.no_grad():
         test_pred, acc = train(args, model, test_loader, epoch, outpath, is_train=False, optimizer=None, lr=None, device=device)
     return test_pred, acc
+
 
 def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, device):
 
@@ -230,7 +230,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     with open(f'{outpath}/model_evaluations/dts.pkl', 'wb') as f:
         pickle.dump(train_accs, f)
 
-    ### Plotting
+    # Plotting
     # Losses
     fig, ax = plt.subplots()
     ax.plot([i+1 for i in range(len(train_losses))], train_losses, label='training losses')
@@ -239,8 +239,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_ylabel('Loss')
     ax.set_title('Validation losses')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}')
-    plt.savefig(f'{outpath}/model_evaluations/losses.png', dpi=900)
+    plt.savefig(f'{outpath}/model_evaluations/losses.{args.fig_format}', transparent=True)
     plt.close(fig)
 
     # Accuracies
@@ -250,6 +249,5 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Accuracy')
     ax.legend(loc='best')
-    plt.savefig(f'{outpath}/model_evaluations/accuracies.{args.fig_format}')
-    plt.savefig(f'{outpath}/model_evaluations/accuracies.png', dpi=900)
+    plt.savefig(f'{outpath}/model_evaluations/accuracies.{args.fig_format}', transparent=True)
     plt.close(fig)
