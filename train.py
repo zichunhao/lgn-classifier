@@ -151,6 +151,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
     PATH_train_acc_pkl = f"{outpath}/model_evaluations/accs_train_per_epoch"
     PATH_valid_acc_pkl = f"{outpath}/model_evaluations/accs_valid_per_epoch"
     PATH_dt_pkl = f"{outpath}/model_evaluations/dts_per_epoch"
+    PATH_weights = f"{outpath}/weights"
     if not osp.isdir(PATH_train_loss_pkl):
         os.makedirs(PATH_train_loss_pkl)
     if not osp.isdir(PATH_valid_loss_pkl):
@@ -161,6 +162,8 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
         os.makedirs(PATH_valid_acc_pkl)
     if not osp.isdir(PATH_dt_pkl):
         os.makedirs(PATH_dt_pkl)
+    if not osp.isdir(PATH_weights):
+        os.makedirs(PATH_weights)
 
     for ep in range(args.num_epochs):
         if args.load_to_train:
@@ -198,7 +201,7 @@ def train_loop(args, model, optimizer, outpath, train_loader, valid_loader, devi
 
         eta = epochs_remaining * time_per_epoch / 60
 
-        torch.save(model.state_dict(), f"{outpath}/epoch_{epoch+1}_weights.pth")
+        torch.save(model.state_dict(), f"{PATH_weights}/epoch_{epoch+1}_weights.pth")
 
         dt = t1-t0
         dts.append(dt)
