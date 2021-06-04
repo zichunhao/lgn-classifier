@@ -95,24 +95,24 @@ def train(args, model, loader, epoch, outpath, is_train=True, optimizer=None, lr
     if is_train:
         tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=True)
         PATH_roc_pkl = f"{outpath}/model_evaluations/roc_curves/pkl_files"
-        if not osp.isdir(PATH_roc_pkl):
-            os.makedirs(PATH_roc_pkl)
-        with open(f"{PATH_roc_pkl}/tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
-            pickle.dump(tpr, f)
-        with open(f"{PATH_roc_pkl}/fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
-            pickle.dump(fpr, f)
+        # if not osp.isdir(PATH_roc_pkl):
+        #     os.makedirs(PATH_roc_pkl)
+        # with open(f"{PATH_roc_pkl}/tpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        #     pickle.dump(tpr, f)
+        # with open(f"{PATH_roc_pkl}/fpr_train_epoch_{epoch+1}.pkl", 'wb') as f:
+        #     pickle.dump(fpr, f)
         with open(f"{PATH_roc_pkl}/auc_train_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(auc, f)
 
     else:
         tpr, fpr, auc = plot_roc_curve(args, predictions_onehot, targets_onehot, epoch, outpath, is_train=False)
         PATH_roc_pkl = f"{outpath}/model_evaluations/roc_curves/pkl_files"
-        if not osp.isdir(PATH_roc_pkl):
-            os.makedirs(PATH_roc_pkl)
-        with open(f"{PATH_roc_pkl}/tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
-            pickle.dump(tpr, f)
-        with open(f"{PATH_roc_pkl}/fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
-            pickle.dump(fpr, f)
+        # if not osp.isdir(PATH_roc_pkl):
+        #     os.makedirs(PATH_roc_pkl)
+        # with open(f"{PATH_roc_pkl}/tpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        #     pickle.dump(tpr, f)
+        # with open(f"{PATH_roc_pkl}/fpr_valid_epoch_{epoch+1}.pkl", 'wb') as f:
+        #     pickle.dump(fpr, f)
         with open(f"{PATH_roc_pkl}/auc_valid_epoch_{epoch+1}.pkl", 'wb') as f:
             pickle.dump(auc, f)
 
